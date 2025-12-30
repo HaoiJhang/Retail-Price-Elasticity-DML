@@ -1,0 +1,151 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} ==========================================}
+\PYG{c+c1}{\PYGZsh{} 1. Simulation: Data Generation}
+\PYG{c+c1}{\PYGZsh{} ==========================================}
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{generate\PYGZus{}simulation\PYGZus{}data}\PYG{p}{(}
+    \PYG{n}{n\PYGZus{}items}\PYG{o}{=}\PYG{l+m+mi}{50}\PYG{p}{,} \PYG{n}{n\PYGZus{}time}\PYG{o}{=}\PYG{l+m+mi}{100}\PYG{p}{,} \PYG{n}{true\PYGZus{}theta}\PYG{o}{=}\PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{2.0}\PYG{p}{,} \PYG{n}{noise\PYGZus{}level}\PYG{o}{=}\PYG{l+m+mf}{0.001}\PYG{p}{,} \PYG{n}{seed}\PYG{o}{=}\PYG{l+m+mi}{42}
+\PYG{p}{)}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Generate synthetic retail data with confounders (Quality \PYGZam{} Seasonality)\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{seed}\PYG{p}{(}\PYG{n}{seed}\PYG{p}{)}
+    \PYG{n}{N} \PYG{o}{=} \PYG{n}{n\PYGZus{}items} \PYG{o}{*} \PYG{n}{n\PYGZus{}time}
+
+    \PYG{c+c1}{\PYGZsh{} Confounders: Alpha (Item Fixed Effect), S (Seasonality)}
+    \PYG{n}{item\PYGZus{}ids} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{repeat}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{arange}\PYG{p}{(}\PYG{n}{n\PYGZus{}items}\PYG{p}{)}\PYG{p}{,} \PYG{n}{n\PYGZus{}time}\PYG{p}{)}
+    \PYG{n}{alpha\PYGZus{}i} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{normal}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{n\PYGZus{}items}\PYG{p}{)}\PYG{p}{[}\PYG{n}{item\PYGZus{}ids}\PYG{p}{]}
+
+    \PYG{n}{time\PYGZus{}ids} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{tile}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{arange}\PYG{p}{(}\PYG{n}{n\PYGZus{}time}\PYG{p}{)}\PYG{p}{,} \PYG{n}{n\PYGZus{}items}\PYG{p}{)}
+    \PYG{n}{seasonality} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sin}\PYG{p}{(}\PYG{n}{time\PYGZus{}ids} \PYG{o}{/} \PYG{l+m+mi}{10}\PYG{p}{)} \PYG{o}{+} \PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{normal}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mf}{0.2}\PYG{p}{,} \PYG{n}{N}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} DGP: Price (P) \PYGZam{} Demand (Q)}
+    \PYG{c+c1}{\PYGZsh{} P correlates with Alpha \PYGZam{} S (Endogeneity)}
+    \PYG{n}{ln\PYGZus{}P} \PYG{o}{=} \PYG{l+m+mf}{1.0} \PYG{o}{*} \PYG{n}{alpha\PYGZus{}i} \PYG{o}{\PYGZhy{}} \PYG{l+m+mf}{0.5} \PYG{o}{*} \PYG{n}{seasonality} \PYG{o}{+} \PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{normal}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mf}{0.5}\PYG{p}{,} \PYG{n}{N}\PYG{p}{)}
+    \PYG{n}{ln\PYGZus{}Q} \PYG{o}{=} \PYG{p}{(}
+        \PYG{n}{true\PYGZus{}theta} \PYG{o}{*} \PYG{n}{ln\PYGZus{}P}
+        \PYG{o}{+} \PYG{l+m+mf}{1.0} \PYG{o}{*} \PYG{n}{alpha\PYGZus{}i}
+        \PYG{o}{+} \PYG{l+m+mf}{1.0} \PYG{o}{*} \PYG{n}{seasonality}
+        \PYG{o}{+} \PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{normal}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mf}{0.5}\PYG{p}{,} \PYG{n}{N}\PYG{p}{)}
+    \PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Simulate First\PYGZhy{}stage Residuals (with estimation noise)}
+    \PYG{n}{p\PYGZus{}resid} \PYG{o}{=} \PYG{p}{(}\PYG{n}{ln\PYGZus{}P} \PYG{o}{\PYGZhy{}} \PYG{p}{(}\PYG{l+m+mf}{1.0} \PYG{o}{*} \PYG{n}{alpha\PYGZus{}i} \PYG{o}{\PYGZhy{}} \PYG{l+m+mf}{0.5} \PYG{o}{*} \PYG{n}{seasonality}\PYG{p}{)}\PYG{p}{)} \PYG{o}{+} \PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{normal}\PYG{p}{(}
+        \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{noise\PYGZus{}level}\PYG{p}{,} \PYG{n}{N}
+    \PYG{p}{)}
+    \PYG{n}{q\PYGZus{}resid} \PYG{o}{=} \PYG{p}{(}\PYG{n}{ln\PYGZus{}Q} \PYG{o}{\PYGZhy{}} \PYG{p}{(}\PYG{l+m+mf}{1.0} \PYG{o}{*} \PYG{n}{alpha\PYGZus{}i} \PYG{o}{+} \PYG{l+m+mf}{1.0} \PYG{o}{*} \PYG{n}{seasonality}\PYG{p}{)}\PYG{p}{)} \PYG{o}{+} \PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{normal}\PYG{p}{(}
+        \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{noise\PYGZus{}level}\PYG{p}{,} \PYG{n}{N}
+    \PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}
+        \PYG{p}{\PYGZob{}}
+            \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{item\PYGZus{}id}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{item\PYGZus{}ids}\PYG{p}{,}
+            \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ln\PYGZus{}P}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{ln\PYGZus{}P}\PYG{p}{,}
+            \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ln\PYGZus{}Q}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{ln\PYGZus{}Q}\PYG{p}{,}
+            \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{P\PYGZus{}resid}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{p\PYGZus{}resid}\PYG{p}{,}
+            \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Q\PYGZus{}resid}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{q\PYGZus{}resid}\PYG{p}{,}
+        \PYG{p}{\PYGZcb{}}
+    \PYG{p}{)}
+
+
+\PYG{c+c1}{\PYGZsh{} ==========================================}
+\PYG{c+c1}{\PYGZsh{} 2. Visualization: Binned Scatter Plot}
+\PYG{c+c1}{\PYGZsh{} ==========================================}
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{binned\PYGZus{}ols}\PYG{p}{(}\PYG{n}{df}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{n\PYGZus{}bins}\PYG{o}{=}\PYG{l+m+mi}{15}\PYG{p}{,} \PYG{n}{ax}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{blue}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{o}{*}\PYG{o}{*}\PYG{n}{kwargs}\PYG{p}{)}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Non\PYGZhy{}parametric binned scatter plot with linear fit\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{df} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{copy}\PYG{p}{(}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} Avoid SettingWithCopyWarning}
+    \PYG{n}{df}\PYG{p}{[}\PYG{n}{x} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{\PYGZus{}bin}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{qcut}\PYG{p}{(}\PYG{n}{df}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]}\PYG{p}{,} \PYG{n}{n\PYGZus{}bins}\PYG{p}{,} \PYG{n}{duplicates}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{drop}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Aggregation (De\PYGZhy{}noising)}
+    \PYG{n}{data} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{groupby}\PYG{p}{(}\PYG{n}{x} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{\PYGZus{}bin}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{observed}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}\PYG{p}{[}\PYG{p}{[}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{]}\PYG{p}{]}\PYG{o}{.}\PYG{n}{mean}\PYG{p}{(}\PYG{p}{)}\PYG{o}{.}\PYG{n}{dropna}\PYG{p}{(}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} OLS Fit on Binned Means}
+    \PYG{n}{model} \PYG{o}{=} \PYG{n}{sm}\PYG{o}{.}\PYG{n}{OLS}\PYG{p}{(}\PYG{n}{data}\PYG{p}{[}\PYG{n}{y}\PYG{p}{]}\PYG{p}{,} \PYG{n}{sm}\PYG{o}{.}\PYG{n}{add\PYGZus{}constant}\PYG{p}{(}\PYG{n}{data}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]}\PYG{p}{)}\PYG{p}{)}\PYG{o}{.}\PYG{n}{fit}\PYG{p}{(}\PYG{p}{)}
+
+    \PYG{k}{if} \PYG{n}{ax}\PYG{p}{:}
+        \PYG{c+c1}{\PYGZsh{} Scatter (Binned Means)}
+        \PYG{n}{alpha} \PYG{o}{=} \PYG{n}{kwargs}\PYG{o}{.}\PYG{n}{pop}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{alpha}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mf}{0.4}\PYG{p}{)}
+        \PYG{n}{ax}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}\PYG{n}{data}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]}\PYG{p}{,} \PYG{n}{data}\PYG{p}{[}\PYG{n}{y}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{n}{color}\PYG{p}{,} \PYG{n}{alpha}\PYG{o}{=}\PYG{n}{alpha}\PYG{p}{,} \PYG{n}{s}\PYG{o}{=}\PYG{l+m+mi}{30}\PYG{p}{,} \PYG{o}{*}\PYG{o}{*}\PYG{n}{kwargs}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} Linear Fit}
+        \PYG{n}{x\PYGZus{}pred} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{n}{data}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]}\PYG{o}{.}\PYG{n}{min}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{n}{data}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]}\PYG{o}{.}\PYG{n}{max}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{l+m+mi}{100}\PYG{p}{)}
+        \PYG{n}{ax}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}
+            \PYG{n}{x\PYGZus{}pred}\PYG{p}{,}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{predict}\PYG{p}{(}\PYG{n}{sm}\PYG{o}{.}\PYG{n}{add\PYGZus{}constant}\PYG{p}{(}\PYG{n}{x\PYGZus{}pred}\PYG{p}{)}\PYG{p}{)}\PYG{p}{,}
+            \PYG{n}{color}\PYG{o}{=}\PYG{n}{color}\PYG{p}{,}
+            \PYG{n}{linestyle}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,}
+            \PYG{n}{linewidth}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{,}
+            \PYG{n}{label}\PYG{o}{=}\PYG{n}{label}\PYG{p}{,}
+        \PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{model}
+
+
+\PYG{c+c1}{\PYGZsh{} ==========================================}
+\PYG{c+c1}{\PYGZsh{} 3. Model: High\PYGZhy{}Dimensional Feature Engineering}
+\PYG{c+c1}{\PYGZsh{} ==========================================}
+\PYG{n}{feature\PYGZus{}pipeline} \PYG{o}{=} \PYG{n}{ColumnTransformer}\PYG{p}{(}
+    \PYG{p}{[}
+        \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{StockCode}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{OneHotEncoder}\PYG{p}{(}\PYG{n}{handle\PYGZus{}unknown}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ignore}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{,} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{StockCode}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+        \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Date}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{OneHotEncoder}\PYG{p}{(}\PYG{n}{handle\PYGZus{}unknown}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ignore}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{,} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{month}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{DoM}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{DoW}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+        \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{NLP}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{CountVectorizer}\PYG{p}{(}\PYG{n}{min\PYGZus{}df}\PYG{o}{=}\PYG{l+m+mf}{0.0025}\PYG{p}{,} \PYG{n}{ngram\PYGZus{}range}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)}\PYG{p}{)}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Description}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{,}
+        \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Country}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{OneHotEncoder}\PYG{p}{(}\PYG{n}{handle\PYGZus{}unknown}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ignore}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{,} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Country}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+        \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Numeric}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{StandardScaler}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{stock\PYGZus{}age\PYGZus{}days}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{sku\PYGZus{}avg\PYGZus{}p}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+        \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Treatment}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{passthrough}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{LnP}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+    \PYG{p}{]}\PYG{p}{,}
+    \PYG{n}{remainder}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{drop}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,}
+\PYG{p}{)}
+
+
+\PYG{c+c1}{\PYGZsh{} ==========================================}
+\PYG{c+c1}{\PYGZsh{} 4. Inference: Robust DML with Cross\PYGZhy{}Fitting}
+\PYG{c+c1}{\PYGZsh{} ==========================================}
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{\PYGZus{}estimate\PYGZus{}elasticity\PYGZus{}binned}\PYG{p}{(}\PYG{n}{t\PYGZus{}res}\PYG{p}{,} \PYG{n}{y\PYGZus{}res}\PYG{p}{,} \PYG{n}{t\PYGZus{}raw}\PYG{p}{,} \PYG{n}{n\PYGZus{}bins}\PYG{o}{=}\PYG{l+m+mi}{15}\PYG{p}{)}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Calculate elasticity using Binned Means to reduce variance\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{df} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{t}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{t\PYGZus{}res}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{y}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{y\PYGZus{}res}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{t\PYGZus{}raw}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{t\PYGZus{}raw}\PYG{p}{\PYGZcb{}}\PYG{p}{)}
+    \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{bin}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{qcut}\PYG{p}{(}\PYG{n}{df}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{t}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{,} \PYG{n}{n\PYGZus{}bins}\PYG{p}{,} \PYG{n}{duplicates}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{drop}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{means} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{groupby}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{bin}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{observed}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}\PYG{o}{.}\PYG{n}{mean}\PYG{p}{(}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Robust DML (Neyman Orthogonal): Cov(T\PYGZus{}res, Y\PYGZus{}res) / Cov(T\PYGZus{}res, T\PYGZus{}raw)}
+    \PYG{n}{theta\PYGZus{}robust} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{dot}\PYG{p}{(}\PYG{n}{means}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{t}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{,} \PYG{n}{means}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{y}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)} \PYG{o}{/} \PYG{n}{np}\PYG{o}{.}\PYG{n}{dot}\PYG{p}{(}\PYG{n}{means}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{t}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{,} \PYG{n}{means}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{t\PYGZus{}raw}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} Naive DML: Cov(T\PYGZus{}res, Y\PYGZus{}res) / Var(T\PYGZus{}res)}
+    \PYG{n}{theta\PYGZus{}naive} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{dot}\PYG{p}{(}\PYG{n}{means}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{t}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{,} \PYG{n}{means}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{y}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)} \PYG{o}{/} \PYG{n}{np}\PYG{o}{.}\PYG{n}{dot}\PYG{p}{(}\PYG{n}{means}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{t}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{,} \PYG{n}{means}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{t}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{theta\PYGZus{}robust}\PYG{p}{,} \PYG{n}{theta\PYGZus{}naive}
+
+
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{dml\PYGZus{}cross\PYGZus{}fitting}\PYG{p}{(}\PYG{n}{df}\PYG{p}{,} \PYG{n}{model\PYGZus{}t}\PYG{p}{,} \PYG{n}{model\PYGZus{}y}\PYG{p}{,} \PYG{n}{col\PYGZus{}t}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{dLnP}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{col\PYGZus{}y}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{dLnQ}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{k}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Main DML Loop with k\PYGZhy{}Fold Cross\PYGZhy{}Fitting\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{res\PYGZus{}robust}\PYG{p}{,} \PYG{n}{res\PYGZus{}naive}\PYG{p}{,} \PYG{n}{residuals} \PYG{o}{=} \PYG{p}{[}\PYG{p}{]}\PYG{p}{,} \PYG{p}{[}\PYG{p}{]}\PYG{p}{,} \PYG{p}{[}\PYG{p}{]}
+
+    \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{p}{(}\PYG{n}{idx\PYGZus{}tr}\PYG{p}{,} \PYG{n}{idx\PYGZus{}te}\PYG{p}{)} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}
+        \PYG{n}{KFold}\PYG{p}{(}\PYG{n}{k}\PYG{p}{,} \PYG{n}{shuffle}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{42}\PYG{p}{)}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{n}{df}\PYG{p}{)}
+    \PYG{p}{)}\PYG{p}{:}
+        \PYG{n}{df\PYGZus{}tr}\PYG{p}{,} \PYG{n}{df\PYGZus{}te} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{idx\PYGZus{}tr}\PYG{p}{]}\PYG{p}{,} \PYG{n}{df}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{idx\PYGZus{}te}\PYG{p}{]}\PYG{o}{.}\PYG{n}{copy}\PYG{p}{(}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} 1. Nuisance Parameter Estimation}
+        \PYG{c+c1}{\PYGZsh{} Note: clone() ensures models are reset for each fold}
+        \PYG{n}{model\PYGZus{}t}\PYG{o}{.}\PYG{n}{fit}\PYG{p}{(}\PYG{n}{df\PYGZus{}tr}\PYG{p}{,} \PYG{n}{df\PYGZus{}tr}\PYG{p}{[}\PYG{n}{col\PYGZus{}t}\PYG{p}{]}\PYG{p}{)}
+        \PYG{n}{model\PYGZus{}y}\PYG{o}{.}\PYG{n}{fit}\PYG{p}{(}\PYG{n}{df\PYGZus{}tr}\PYG{p}{,} \PYG{n}{df\PYGZus{}tr}\PYG{p}{[}\PYG{n}{col\PYGZus{}y}\PYG{p}{]}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} 2. Orthogonalization (Residual Calculation)}
+        \PYG{n}{res\PYGZus{}t} \PYG{o}{=} \PYG{n}{df\PYGZus{}te}\PYG{p}{[}\PYG{n}{col\PYGZus{}t}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{n}{model\PYGZus{}t}\PYG{o}{.}\PYG{n}{predict}\PYG{p}{(}\PYG{n}{df\PYGZus{}te}\PYG{p}{)}
+        \PYG{n}{res\PYGZus{}y} \PYG{o}{=} \PYG{n}{df\PYGZus{}te}\PYG{p}{[}\PYG{n}{col\PYGZus{}y}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{n}{model\PYGZus{}y}\PYG{o}{.}\PYG{n}{predict}\PYG{p}{(}\PYG{n}{df\PYGZus{}te}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} 3. Inference (Binned)}
+        \PYG{n}{theta\PYGZus{}r}\PYG{p}{,} \PYG{n}{theta\PYGZus{}n} \PYG{o}{=} \PYG{n}{\PYGZus{}estimate\PYGZus{}elasticity\PYGZus{}binned}\PYG{p}{(}\PYG{n}{res\PYGZus{}t}\PYG{p}{,} \PYG{n}{res\PYGZus{}y}\PYG{p}{,} \PYG{n}{df\PYGZus{}te}\PYG{p}{[}\PYG{n}{col\PYGZus{}t}\PYG{p}{]}\PYG{p}{)}
+
+        \PYG{n}{res\PYGZus{}robust}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{theta\PYGZus{}r}\PYG{p}{)}
+        \PYG{n}{res\PYGZus{}naive}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{theta\PYGZus{}n}\PYG{p}{)}
+        \PYG{n}{residuals}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}
+            \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{dLnP\PYGZus{}res}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{res\PYGZus{}t}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{dLnQ\PYGZus{}res}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{res\PYGZus{}y}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Fold}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{i} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{\PYGZcb{}}\PYG{p}{)}
+        \PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Aggregation}
+    \PYG{n}{df\PYGZus{}res} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{concat}\PYG{p}{(}\PYG{n}{residuals}\PYG{p}{)}
+    \PYG{n}{theta\PYGZus{}final} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{nanmean}\PYG{p}{(}\PYG{n}{res\PYGZus{}robust}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Global RMSE Calculation}
+    \PYG{n}{rmse} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sqrt}\PYG{p}{(}
+        \PYG{n}{mean\PYGZus{}squared\PYGZus{}error}\PYG{p}{(}\PYG{n}{df\PYGZus{}res}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{dLnQ\PYGZus{}res}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{,} \PYG{n}{df\PYGZus{}res}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{dLnP\PYGZus{}res}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]} \PYG{o}{*} \PYG{n}{theta\PYGZus{}final}\PYG{p}{)}
+    \PYG{p}{)}
+
+    \PYG{n+nb}{print}\PYG{p}{(}
+        \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Robust DML: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{theta\PYGZus{}final}\PYG{l+s+si}{:}\PYG{l+s+s2}{.4f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ | Naive DML: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{np}\PYG{o}{.}\PYG{n}{nanmean}\PYG{p}{(}\PYG{n}{res\PYGZus{}naive}\PYG{p}{)}\PYG{l+s+si}{:}\PYG{l+s+s2}{.4f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ | RMSE: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{rmse}\PYG{l+s+si}{:}\PYG{l+s+s2}{.4f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}
+    \PYG{p}{)}
+    \PYG{k}{return} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{df\PYGZus{}residuals}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{df\PYGZus{}res}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{avg\PYGZus{}dml\PYGZus{}elast}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{theta\PYGZus{}final}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{global\PYGZus{}rmse}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:} \PYG{n}{rmse}\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}
