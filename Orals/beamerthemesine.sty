@@ -1,0 +1,84 @@
+\ProvidesPackage{beamerthemesine}
+
+\mode<presentation>
+
+% --------  Set color, inner theme, frame title formats, etc.  ------------
+
+\setbeamercolor{sidebar}{bg=LightGrey,fg=SineBlue}
+
+\setbeamercolor{titlelike}{fg=SineBlue,bg=LightGrey}
+\setbeamercolor{author}{fg=Black}
+\setbeamercolor{date}{fg=Black}
+\setbeamercolor{institute}{fg=Black}
+
+\setbeamercolor{frametitle}{fg=SineBlue,bg=LightGrey}
+\setbeamercolor{framesubtitle}{fg=SineGreen}
+
+\setbeamercolor{normal text}{fg=Black}
+\setbeamercolor{structure}{fg=SineBlue}
+\setbeamercolor{alerted text}{fg=SineRed}
+\setbeamercolor{example text}{fg=SineGreen}
+
+\setbeamercolor{section in sidebar}{fg=SineBlue}
+\setbeamercolor{title in sidebar}{fg=SineRed}
+% \setbeamercolor{subsection in sidebar}{fg=lightgray}
+
+\setbeamercolor{block title}{use=structure,fg=White,bg=structure.fg!75!Black}
+\setbeamercolor{block title alerted}{use=alerted text,fg=White,bg=alerted text.fg!75!Black}
+\setbeamercolor{block title example}{use=example text,fg=White,bg=example text.fg!75!Black}
+
+\setbeamercolor{block body}{bg=MediumGrey!25!White,fg=Black}
+\setbeamercolor{block body alerted}{bg=MediumGrey!25!White,fg=Black}
+\setbeamercolor{block body example}{bg=MediumGrey!25!White,fg=Black}
+
+\setbeamercolor{section in toc}{fg=Black,bg=White}
+
+\setbeamercolor{navigation symbols}{fg=SineBlue}
+
+\useinnertheme{rectangles}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+
+\setbeamertemplate{algorithm}[boxed]  % 可选：给算法加框
+\setbeamerfont{algorithm}{size=\small}  % 调整算法字体大小
+\setbeamerfont{algorithmic}{size=\small}  % 调整伪代码字体大小
+
+% 跨页枚举
+\newcounter{currentenumi}
+\newcommand{\edenumi}{\setcounter{currentenumi}{\theenumi}}
+\newcommand{\openumi}{\setcounter{enumi}{\thecurrentenumi}}
+
+% --------  Define behavior for theme option "minimal"  -----------
+\DeclareOptionBeamer{minimal}{
+    \useoutertheme[subsection=false]{miniframes}
+}
+
+% --------  Define behavior for theme option "sidebarleft"  -----------
+\DeclareOptionBeamer{sidebarleft}{
+    \useoutertheme{sidebar}
+}
+
+% --------  Define behavior for theme option "sidebarright"  -----------
+\DeclareOptionBeamer{sidebarright}{
+    \useoutertheme{sidebar}
+}
+
+\ProcessOptionsBeamer
+
+% --------  Set the font themes to be used here  -----------------
+
+\usefonttheme{professionalfonts}
+\usepackage[ebgaramond]{newtxmath}
+\setCJKmainfont{LXGW WenKai}
+
+% --------  Remove navigation symbols from appearing  ----------------
+% \setbeamertemplate{navigation symbols}{}
+
+% 设置背景模板
+\usebackgroundtemplate{%
+    \tikz[overlay, remember picture] % 使用 TikZ 创建一个覆盖层
+        \node[opacity=0.1, anchor=center, at=(current page.center)] % 设置透明度和位置
+            {\includegraphics[scale=0.0618]{figs/上海财经大学-logo-2048px.png}}; % 载入并缩放图片
+}
+
+% --------  Invoke all mode
+\mode<all>

@@ -1,0 +1,465 @@
+\section{Introduction}
+
+\begin{frame}
+    \frametitle{Implication of Price Elasticity}
+
+    % 第一部分: 概念定义
+    \begin{itemize}[<+->]
+        \item 价格需求弹性反映了\alert{需求量对价格变动的敏感程度}.
+
+    % 第二部分: 数学推导
+    \begin{block}{Calculate the price elasticity $\theta$}
+        虽然价格通过复杂的决策变量间接影响需求, 但在数学上可简化为以下比率: 
+        设 $Q$ 为需求量, $P$ 为价格, 则弹性 $\theta$ 为: 
+        \begin{align}
+            \theta = \frac{\text{需求量变动百分比}}{\text{价格变动百分比}} = \frac{\mathrm{d} Q / Q}{\mathrm{d} P / P} \implies \log(Q) \sim \theta \log(P)
+        \end{align}
+
+        也即 $\theta$ 可以看作价格量变动对需求量变动的因果效应.
+    \end{block}
+
+    % 第三部分: 决策意义
+
+        \item 进一步, \alert{厂商 (Firm)} 可依据弹性值优化定价策略: 
+        \begin{itemize}
+            \item 缺乏弹性 ($\mid\theta\mid < 1$) $\to$ 提价可增加收入
+            \item 富有弹性 ($\mid\theta\mid > 1$) $\to$ 降价可增加收入
+        \end{itemize}
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Problem Solving Approach }
+
+    \begin{enumerate}[<+->]
+        \item  虽然 A/B 测试是评估价格弹性的理想手段, 但在同一时期对不同用户展示差异化价格, 会严重损害用户体验与品牌信誉, 因此往往不可行.
+
+        \item 替代方案是基于\alert{历史观测数据}进行因果推断.然而, 如何有效剥离季节性、产品质量变化等\hl{混杂因素}的影响, 是估计真实因果效应的核心难点.
+        \item 在使用普通OLS回归, Poisson 回归与Ridge 回归的基础上, 本研究进一步使用\hl{双重机器学习}框架, 主要解决以下两个问题: 
+        \begin{itemize}
+            \item \textbf{高维变量筛选:} 通过正则化技术, 从大量特征中自动筛选出重要的控制变量；
+            \item \textbf{非线性拟合:} 相比传统线性回归, DML 引入非参数模型, 能更准确地捕捉复杂的非线性关系.
+        \end{itemize}
+
+    \end{enumerate}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Inference Process: Double Machine Learning}
+
+    \begin{enumerate}
+        \item \textbf{样本分割与交叉拟合}:
+        将数据分为训练集和估计集.利用随机森林模型从高维混杂变量 $X$ 中学习非线性关系: 
+        \begin{itemize}
+            \item 估计处理变量（倾向性得分）: $g(X) = \mathbb{E}[P \mid X]$
+            \item 估计结果变量（基线需求）: $m(X) = \mathbb{E}[Q \mid X]$
+        \end{itemize}
+
+        \item \textbf{计算正交残差}:
+        \begin{align}
+            \widetilde{P} = P - g(X), \quad \widetilde{Q} = Q - m(X)
+        \end{align}
+
+        \item \textbf{部分线性回归}:
+        基于残差建立回归方程, 消除偏差后得到的系数 $\theta$ 即为无偏估计量: 
+        \begin{align}
+            \ln(\widetilde{Q}) = \theta \cdot \ln(\widetilde{P}) + \varepsilon
+        \end{align}
+    \end{enumerate}
+
+\end{frame}
+
+\section{Data Cleaning \& EDA}
+
+\begin{frame}
+    \frametitle{Dataset Description}
+    \begin{enumerate}[<+->]
+        \item 本研究使用 Kaggle 公开数据集 \href{https://www.kaggle.com/code/sachinsarkar/association-rules-and-market-basket-analysis}{"Association Rules and Market Basket Analysis"}, 共 541909 条数据.
+    \item 原始数据旨在进行购物篮关联分析, 记录了每一笔交易的详细清单 (Transaction Log), 见图 \ref{fig:data_sample}.
+    
+    \item 为了计算价格弹性, 我们需要对原始交易数据进行\alert{聚合处理}, 将粒度从“单次交易”转换为“商品-时间”维度的销量与价格数据.
+    \item 此外, 还需要挖掘更多的协变量信息以剥离季节性、产品质量变化等\textbf{混杂因素 (Confounders)} 的影响.
+
+    \end{enumerate}
+
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.75\textwidth]{figs/Data_sample.png}
+        \caption{Data Sample}
+        \label{fig:data_sample}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Data Overview: Temporal Distribution}
+    
+    \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figs/daily_trends_dual_axis.pdf}
+    \caption{\alert{Daily Fluctuations: Items Sold vs. Transaction Count.} 可以看到数据存在明显的波动.}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Data Preprocessing}
+
+    \begin{minted}[fontsize=\scriptsize,frame=single]{python3}
+# 剔除异常产品数据
+df = df[~df.StockCode.isin(
+    ['POST', 'DOT', 'M', 'AMAZONFEE', 'BANK CHARGES', 'C2', 'S']
+    )] # 上述代码代表的是服务、罚款、运营成本或纠错记录
+
+# 清洗控制变量
+df['InvoiceDate'] = pd.to_datetime(df.InvoiceDate)
+df['Date'] = pd.to_datetime(df.InvoiceDate.dt.date)
+df['revenue'] = df.Quantity * df.UnitPrice
+
+# 剔除异常偏差值, 超出范围的波动属于数据噪音
+df = (
+    df.assign( # 当前订单的价格是"标准价格"的多少倍
+    dNormalPrice=lambda d: d.UnitPrice / d.groupby('StockCode') 
+    .UnitPrice.transform('median') 
+    ).pipe(lambda d: d[(d['dNormalPrice'] > 1./3) &(d['dNormalPrice'] < 3.)] # 正常的商业调整
+    ).drop(columns=['dNormalPrice'])
+)
+
+# 聚合处理, 计算加权平均价格
+df = df.groupby(['Date', 'StockCode', 'Country'], as_index=False).agg({
+    'Description': 'first', 'Quantity': 'sum', 'revenue': 'sum'
+})
+df['Description'] = df.groupby('StockCode').Description.transform('first')
+df['UnitPrice'] = df['revenue'] / df['Quantity']
+    \end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Feature Engineering}
+
+    为了解决因果推断中的内生性问题, 构造了以下多维度的控制变量: 
+
+    \begin{itemize}
+        \item \textbf{Temporal Features}: 月份、日期、周几, 用于剥离时间趋势的影响. 
+        \item \textbf{Item Features}: 商品在架时长、历史中位数价格（锚点价）. 
+    \end{itemize}
+
+    \begin{minted}{python3}
+df = df.assign(
+    # --- 时间混杂因素 (Time Confounders) ---
+    month = lambda d: d.Date.dt.month,      # 季节性
+    DoM   = lambda d: d.Date.dt.day,        # 月度周期
+    DoW   = lambda d: d.Date.dt.weekday,    # 周度周期
+    
+    # --- 商品特征 (Product Characteristics) ---
+    stock_age_days = lambda d: (            
+        d.Date - d.groupby("StockCode").Date.transform("min") # 产品在架时长
+    ).dt.days, # 以防将清仓甩卖的高销量误认为是低价带来的正常弹性
+    
+    sku_avg_p = lambda d: d.groupby("StockCode").UnitPrice.transform(
+        "median"                            # 该商品在历史所有时间段内的中位数价格
+    )
+) # 控制了商品异质性
+
+\end{minted}
+
+\end{frame}
+
+\section{Modeling}
+
+\subsection{Binning OLS}
+
+\begin{frame}[fragile]
+    \frametitle{Binning and Smoothing}
+
+    在将单价和数量取 log, 原始交易数据存在大量噪音, 直接绘图难以观察趋势. 我们采用 \alert{Binscatter} 方法: 
+    \begin{enumerate}[<+->]
+        \item \textbf{分箱}: 将自变量 $X$ (如价格) 按分位数划分为 $N$ 个等深区间.
+        \item \textbf{降噪}: 计算每个区间内的平均价格 $\avg{P}$ 和平均需求 $\avg{Q}$.
+        \item \textbf{拟合}: 基于均值点进行 OLS 回归.
+    \end{enumerate}
+
+    \begin{minted}{python}
+def binned_ols(df, x, y, n_bins=15):
+    # 1. Binning (Quantile Cut)
+    x_bin = x + '_bin'
+    df[x_bin] = pd.qcut(df[x], n_bins)
+    
+    # 2. De-noising (Mean per bin)
+    tmp = df.groupby(x_bin).agg({
+        x: 'mean', y: 'mean'
+    })
+
+    # 3. Regression on Binned Data
+    mdl = sm.OLS(
+        tmp[y], sm.add_constant(tmp[x])
+    )
+    return mdl.fit()
+    \end{minted}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Visualizing the Demand Curve}
+
+    \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figs/Observe messy relationship between LnP and LnQ.pdf}
+    \caption{\alert{Observe messy relationship between $\ln(P)$ and $\ln(Q)$:} Binning MSE: 0.064, 注意, 这仅说明价格与需求之间存在非常稳健的线性结构关系.}
+    
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{OLS Regression Result}
+\begin{table}
+    \caption{OLS Regression Results}
+\begin{center}
+        \scriptsize
+\begin{tabular}{lclc}
+\toprule
+\textbf{Dep. Variable:}    &       LnQ        & \textbf{  R-squared:         } &     0.843   \\
+\textbf{Model:}            &       OLS        & \textbf{  Adj. R-squared:    } &     0.831   \\
+\textbf{Method:}           &  Least Squares   & \textbf{  F-statistic:       } &     70.05   \\
+\textbf{Date:}             & Tue, 16 Dec 2025 & \textbf{  Prob (F-statistic):} &  1.36e-06   \\
+\textbf{Time:}             &     10:17:36     & \textbf{  Log-Likelihood:    } &   0.39183   \\
+\textbf{No. Observations:} &          15      & \textbf{  AIC:               } &     3.216   \\
+\textbf{Df Residuals:}     &          13      & \textbf{  BIC:               } &     4.632   \\
+\textbf{Df Model:}         &           1      & \textbf{                     } &             \\
+\textbf{Covariance Type:}  &    nonrobust     & \textbf{                     } &             \\
+\bottomrule
+\end{tabular}
+\begin{tabular}{lcccccc}
+& \textbf{coef} & \textbf{std err} & \textbf{t} & \textbf{P$> |$t$|$} & \textbf{[0.025} & \textbf{0.975]}  \\
+\midrule
+\textbf{const} &       2.3252  &        0.085     &    27.321  &         0.000        &        2.141    &        2.509     \\
+\textbf{LnP}   &      -0.5949  &        0.071     &    -8.370  &         0.000        &       -0.748    &       -0.441     \\
+\bottomrule
+\end{tabular}
+\begin{tabular}{lclc}
+\textbf{Omnibus:}       &  1.908 & \textbf{  Durbin-Watson:     } &    2.520  \\
+\textbf{Prob(Omnibus):} &  0.385 & \textbf{  Jarque-Bera (JB):  } &    0.381  \\
+\textbf{Skew:}          & -0.233 & \textbf{  Prob(JB):          } &    0.826  \\
+\textbf{Kurtosis:}      &  3.626 & \textbf{  Cond. No.          } &     2.19  \\
+\bottomrule
+\end{tabular}
+
+\end{center}
+\end{table}
+\end{frame}
+
+\subsection{Poisson and Ridge Regression}
+
+\begin{frame}[fragile]
+    \frametitle{Incorporating Multivariate Covariates}
+
+\begin{minted}{python3}
+feature_generator_full = ColumnTransformer([
+        # 1. 商品固定效应: 给每个 StockCode 一个独立截距, 捕捉每个商品特有的基准销量.
+        ("StockCode", OneHotEncoder(handle_unknown='ignore'), ["StockCode"]),
+        # 2. 时间固定效应: 对月份、日期、周几进行独热编码, 捕捉非线性的季节性和周期性规律. 
+        ("Date", OneHotEncoder(handle_unknown='ignore'), ["month", "DoM", "DoW"]),
+        # 3. 商品属性特征: 从描述文本中提取 n-gram (1-3词组), 捕捉细粒度属性对需求的影响.
+        (
+            "Description",
+            CountVectorizer(min_df=0.0025, ngram_range=(1, 3)),
+            "Description",
+        ),
+        # 4. 区域固定效应: 捕捉不同国家的消费习惯差异.
+        ("Country", OneHotEncoder(handle_unknown='ignore'), ["Country"]),
+        # 5. 连续控制变量: 标准化处理, 防止数值较大的特征在正则化中占据过大权重.
+        (
+            "numeric_feats",
+            StandardScaler(),
+            ["stock_age_days", "sku_avg_p"],
+        ),
+        # 6. 处理变量: 保留对数价格, 作为回归的核心自变量, 用于计算弹性系数 theta.
+        ("LnP", "passthrough", ["LnP"]),
+    ])
+\end{minted}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Estimation Results: Poisson \& Ridge}
+
+    \begin{table}[htbp]
+        \centering
+        \caption{Comparison of Estimated Price Elasticities ($\est{\theta}$) by Model Specification}
+        \begin{tabular}{c c c}
+            \toprule
+            \textbf{Model Strategy} & \textbf{Elasticity ($\theta$)} & \textbf{RMSE}\\
+            \midrule
+            \textbf{Poisson (Count)} & \alert{-2.963772} & 141.9903 (件)\\
+            Ridge (Log-Log) & -1.927997 & 146.3423 (件) \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+
+        \begin{itemize}[<+->]
+        \item Poisson 回归在 RMSE 指标上优于 Ridge 回归, 说明了针对销量的\alert{离散计数特性}建模比简单的对数线性转换更为准确.
+        \item 尽管 Poisson 表现更优, 但绝对误差 (RMSE $\approx$ 142) 仍处于较高水平. 这反映了微观层面的单品销量存在较大的随机波动, 未来可考虑引入更多细粒度特征以提升预测精度.
+    \end{itemize}
+\end{frame}
+
+\subsection{DML}
+
+\begin{frame}
+    \frametitle{DML: Model Specification}
+
+    在双重机器学习框架下, 我们针对价格和销量的不同数据分布特性, 分别构建了第一阶段的 Nuisance Models:
+
+    \begin{enumerate}[<+->]
+
+        \item \textbf{价格模型}: $P \sim X$
+        \begin{itemize}
+            \item \hl{算法}: \alert{随机森林}
+            \item \hl{理由}: 价格受多种市场因素（季节、竞品、库存）的非线性影响, RF 能有效捕捉高维特征中的复杂交互关系.
+        \end{itemize}
+
+        \item \textbf{需求模型}: $Q \sim X$
+        \begin{itemize}
+            \item \hl{算法}: \alert{Poisson 回归}
+            \item \hl{理由}: 销量 ($Q$) 本质上是非负整数的计数数据, 相比传统线性模型, Poisson 回归能更准确地拟合长尾分布, 避免预测负值.
+        \end{itemize}
+    \end{enumerate}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{DML: Code}
+
+\begin{minted}{python3}
+# 定义用于建模数量的管道 model_q
+model_q = Pipeline([
+    # 第一阶段: 特征处理
+    # 使用 feature_generator_full 对原始输入数据进行特征转换
+    ('feat_proc', feature_generator_full),
+    # 第二阶段: Poisson 回归模型, 适用于计数型（非负整数）目标变量
+    ('model_q', 
+    linear_model.PoissonRegressor(
+        alpha=1e-6,           # L2 正则化强度, 值越小正则化越弱.
+        fit_intercept=False,  # 不拟合截距项（通常在特征已中心化或包含常数列时使用）
+        max_iter=100_000,     # 最大迭代次数, 设置较高以确保收敛
+    )),
+])
+# 定义用于建模价格或其他连续目标的管道 model_p
+model_p = Pipeline([
+    # 第一阶段: 特征处理（与 model_q 共享相同的特征工程流程）
+    ('feat_proc', feature_generator_full),
+    # 第二阶段: 随机森林回归器, 适用于非线性关系和特征交互
+    ('model_p', 
+    RandomForestRegressor(
+        n_estimators=50,       # 决策树的数量
+        min_samples_leaf=3,    # 每个叶节点至少包含 3 个样本, 用于控制过拟合
+    ))
+])
+
+\end{minted}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{DML: Progressive De-confounding}
+
+为了直观展示 DML 剔除混杂因素的效果, 我们对比了三个不同处理阶段的数据, 并分别进行分箱回归:
+\pause
+    \begin{enumerate}[<+->]
+        
+        \item \textbf{原始数据}: $\ln P, \ln Q$: 包含所有噪音和混杂因素, 反映原始的市场相关性.
+
+        \item \textbf{去均值化数据}: $\dd \ln(P), \dd \ln(Q)$: 剔除了商品层面的固定效应, 仅保留组内变异. 
+
+        \item \textbf{DML 正交残差}: $\dd\ln(\widetilde{P}), \dd \ln(\widetilde{Q})$: 利用机器学习剔除了所有观测到的混杂因素 ($X$), 反映纯粹的价格与需求因果关系.
+        
+    \end{enumerate}
+
+\pause 
+    \begin{figure}[htbp]
+    \includegraphics[width=0.75\textwidth]{figs/Data_sample_3types.png}
+    \caption{\alert{Data Sample of Three Processing Stages}}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{DML: Visualizing the Demand Curve}
+
+    \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figs/demand_curve_comparison.pdf}
+    \caption{\alert{Binned Scatter Plots: From Raw Data to Orthogonalized Residuals}}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{DML: Model Diagnostics}
+
+    \begin{table}[htbp]
+        \centering
+        \caption{Evolution of Elasticity ($\est{\theta}$) and Goodness-of-Fit Across Stages}
+        \begin{tabular}{l c c c}
+            \toprule
+            \textbf{Stage} & \textbf{Elasticity ($\est{\theta}$)} & \textbf{Binned MSE} & \textbf{Binned RMSE} \\
+            \midrule
+            Raw Data & -0.5949 & 0.0641 & 0.2532 \\
+            De-meaned & -1.8033 & 0.0138 & 0.1173 \\
+            \alert{DML} & \alert{-0.5812} & \alert{0.0117} & \alert{0.1080} \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+
+
+    \begin{itemize}[<+->]
+        \item RMSE 从 Raw 的 0.25 降至 DML 的 \alert{0.108 (-57\%)}. 这意味着 DML 成功剥离了大量非线性噪音, 分箱点最紧密地围绕回归线分布, 线性关系最强.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Robustness Strategy: Refined DML Estimation}
+
+    \begin{enumerate}[<+->]
+
+        \item 观察到 DML 结果与简单的去均值结果存在显著差异, 表明单纯控制固定效应不足以消除时变混杂因素, DML 的引入是必要的.
+
+        \item 这是因为当价格残差 $\widetilde{P}$ 接近于零时（即价格变化完全被协变量解释）, 会导致估算不稳定.
+
+        \item 为了确保弹性估计的稳健性与无偏性, 我们在标准 DML 基础上采用 Chernozhukov 提出的改进型 DML 估计量. 相比于传统的残差回归, 该方法分母使用原始价格 $P$, 对第一阶段的估计误差更具鲁棒性: 
+        \begin{align*}
+            \est{\theta}_{\text{OLS}} = \frac{\widetilde{P}^\top \widetilde{Q}}{\widetilde{P}^\top \widetilde{P}} \quad \xrightarrow{\text{Improved}} \quad \est{\theta}_{\text{DML}} = \frac{\widetilde{P}^\top \widetilde{Q}}{\widetilde{P}^\top P}
+        \end{align*}
+
+        \item 进一步采用 2-Fold 样本分割策略: 利用样本 A 训练辅助模型并预测样本 B 的残差（反之亦然）, 从而彻底消除过拟合带来的\alert{自身偏差}. 
+    \end{enumerate}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{DML Diagnostics: Cross-Fitting Results}
+
+    \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figs/dml_default.pdf}
+    \caption{\alert{Diagnostic Plot: Binned Residuals vs. Fitted Line:} DML Elasticity: \hl{-1.89}, Binned RMSE: \hl{0.047}}
+\end{figure}
+
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Outlook: Towards Smart Pricing}
+
+    \begin{enumerate}
+
+        \item \hl{异质性分析 (From ATE to CATE)}:
+        当前模型计算的是全局平均弹性 (Global ATE), 掩盖了不同品类的差异. 是否利用 Causal Forest 或分层模型, 细化评估不同品类 (Category-level) 甚至单品 (SKU-level) 的价格敏感度差异?
+
+        \item \hl{动态环境模拟 (Dynamic Simulation)}: 能否引入\hl{状态转移方程 (State Transition)} 构建马尔可夫环境, 以捕捉跨期效应? 如何模拟用户囤货、需求透支等行为, 评估长期累积收益, 而非仅看单日销量? 
+
+        \item \hl{复杂策略优化 (Policy Optimization)}: 如何将弹性估算转化为具体的厂商决策支持. 探索多步决策问题, 如确定\hl{最佳促销频率}或评估\hl{连续降价}的综合效益. 
+    \end{enumerate}
+
+\end{frame}

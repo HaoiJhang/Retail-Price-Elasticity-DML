@@ -1,0 +1,50 @@
+\section{蒙特卡洛模拟研究}\label{sec:simulation}
+
+为了验证上述理论推导的正确性, 特别是 Robust DML 在存在测量误差下的有效性, 我们构建了一个受控的蒙特卡洛模拟环境. 该环境允许我们在已知真实弹性 $\theta$ 的前提下, 观测不同估计量的表现. 
+
+\subsection{数据生成过程}
+
+设定真实的数据生成过程如下, 以模拟包含高维混杂因素与测量误差的真实市场环境:
+\begin{enumerate}
+    \item 设定真实价格弹性为 $\theta = -1.0$.
+    \item 
+    \begin{itemize}
+        \item 引入商品固定效应 $\alpha_i \sim N(0, 1)$, 且设定 $\cov{P, \alpha} > 0$ (模拟高质量高价);
+        \item 引入时间混杂因素 $S_t \sim \text{Seasonality}$, 且设定 $\cov{P, S} > 0$ (模拟旺季涨价).
+    \end{itemize}
+    \item 在模拟 DML 第一阶段时, 人为向残差中注入高斯白噪声 $\nu \sim N(0, 0.001^2)$, 以模拟机器学习模型在有限样本下的非完美预测 (即式 \eqref{eq:measure_error} 中的测量误差).
+\end{enumerate}
+
+\subsection{模拟结果分析}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figs/simulation_verification.pdf}
+    \caption{四种估计量的模拟结果对比 (真实值 $\theta = -1.0$)}
+    \label{fig:sim_result}
+\end{figure}
+
+基于上述 DGP 生成的 $N=5000$ 条观测数据, 四种估计量的分布与偏差如图 \ref{fig:sim_result} 所示. 实验结果与理论推导高度一致：
+\begin{enumerate}
+    \item 模拟结果显示 $\est{\theta}_{\text{OLS}} \approx -0.5013$, 远高于真实值 $-1.0$. 这验证了式 \eqref{eq:raw_ols}. 由于 $\alpha_i$ 和 $S_t$ 均与价格正相关, 导致了巨大的正向偏差项, 掩盖了真实的需求弹性.
+    \item 去均值模型的估计值为 $\est{\theta}_{\text{FE}} \approx -1.6575$. 相比 Raw OLS, 其绝对值显著增大. 这对应了理论分析中 $\alpha_i$ 的消除. 然而, 由于模型仍受时间变动因素 $S_t$ (如式 \eqref{eq:demeaned_ols} 所示) 的影响, 估计结果依然存在偏差.
+    \item 在人为注入第一阶段预测噪音 $\nu$ 后, Naive DML 的估计值为 $\est{\theta}_{\text{naive}} \approx -0.7288$. 这一结果精确验证了式 \eqref{eq:measure_error} 中的衰减偏差. 尽管 DML 试图剔除混杂, 但分母中的噪音方差 $\dev{\nu}$ 导致了信噪比下降, 迫使系数向 $0$ 收缩. 且模拟表明, 这种收缩效应在数量级上与遗漏变量偏差相当, 极易误导决策.
+    \item 采用 Neyman 正交化公式后, 估计值 $\est{\theta}_{\text{robust}} \approx -1.0095$, 几乎完美还原了真实参数. 这证实了式 \eqref{eq:robust_dml} 的推导. 即便第一阶段残差 $\widetilde{x}$ 包含大量人为注入的噪音, 通过利用原始价格 $x$ , 协方差结构 $\cov{\widetilde{x}^* + \nu, x}$ 成功过滤了噪音干扰, 实现了无偏估计.
+\end{enumerate}
+
+
+\subsection{敏感性分析}
+
+为了进一步验证结论的稳健性, 我们在 $\theta \in [-4.0, 1.0]$ 的范围内进行了敏感性测试 (如图 \ref{fig:sensitivity} 所示).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figs/elasticity_sensitivity_analysis.pdf}
+    \caption{估计偏差随真实弹性变化的敏感性分析}
+    \label{fig:sensitivity}
+\end{figure}
+
+结果表明:
+\begin{enumerate}
+    \item \textbf{Naive DML} 表现出明显的乘性偏差, 即真实弹性绝对值越大, 其绝对误差越大.
+    \item \textbf{Robust DML} 在整个定义域内始终紧贴真实弹性值, 证明了该方法不仅能剔除混杂因素, 且对模型预测误差具有极强的鲁棒性.
+\end{enumerate}

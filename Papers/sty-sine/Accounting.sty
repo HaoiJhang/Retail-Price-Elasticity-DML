@@ -1,0 +1,41 @@
+% 定义新的 journal 环境
+\newenvironment{journal}
+  {
+    \begin{table}[htbp]
+      \footnotesize
+      \centering
+      \begin{tabular}{llrr}
+        \toprule
+        \textbf{Date} & \textbf{Description} & \textbf{Dr.}(\$) & \textbf{Cr.}(\$) \\
+        \midrule
+  }
+  {
+        \bottomrule
+      \end{tabular}
+    \end{table}
+  }
+
+\newenvironment{income}
+  {
+    \begin{table}[htbp]
+      \footnotesize
+      \centering
+      \begin{tabular}{lr}
+        \toprule
+  }
+  {
+        \bottomrule
+      \end{tabular}
+    \end{table}
+  }
+
+\newenvironment{ledger}
+ {\begin{table}
+        \centering\footnotesize
+        \begin{tabular}{p{3em} p{3em} | p{3em} p{3em}}
+  \toprule
+  }
+  {\bottomrule
+        \end{tabular}
+  \end{table}
+  }

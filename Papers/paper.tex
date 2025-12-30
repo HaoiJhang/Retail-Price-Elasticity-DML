@@ -1,0 +1,40 @@
+\documentclass[10pt,a4paper]{elsarticle}
+\usepackage{sty-sine/sine}
+\usepackage{minted}
+\usepackage{xcolor} % 用于配置颜色（可选）
+\usemintedstyle{vs} 
+\setminted{
+    fontsize=\scriptsize,  % 字号
+    frame=lines,          % 单线边框
+    linenos=true,          % 显示行号
+    breaklines=true,       % 自动折行
+}
+
+
+
+\title{需求价格弹性的因果计算}
+
+\author{张浩怡}
+
+\address{经济学院, 2023111228}
+
+\begin{document}
+
+\begin{abstract}
+
+需求价格弹性是企业优化定价策略与提升营收的核心决策依据. 尽管 A/B 测试是理想的评估手段, 但在零售场景中易损害用户体验. 因此, 基于观测数据的因果推断成为主流方案, 但如何剥离季节性、产品异质性等高维混杂因素是其核心难点. 
+
+本研究提出了一种基于双重机器学习 (DML) 的稳健因果推断框架. 我们构建了``随机森林 + Poisson 回归''的混合残差模型, 以捕捉价格形成的非线性机制及销量的离散计数特征. 通过蒙特卡洛模拟与理论推导, 本研究深入剖析了四种主流估计量的偏差来源: (1) 原始 OLS 因忽略商品异质性与供需联立性, 表现出严重的正向偏差；(2) 去均值 (De-meaned) 模型虽剔除了固定效应, 但仍受时变混杂因素干扰；(3) 朴素 DML (Naive DML) 受第一阶段正则化噪音影响, 面临严重的衰减偏差. 相比之下, 本研究采用的 Robust DML 基于 Neyman 正交化构造, 有效抵消了滋扰参数的估计误差, 实现了无偏估计. 
+
+基于 Kaggle 零售数据集的实证结果验证了上述理论: DML 框架将分箱均方根误差 (RMSE) 降低了约 57\%, 极大提升了拟合稳健性. 最终估算的市场平均弹性为 -1.89, 修正了传统模型低估价格敏感度的问题. 本研究为企业在复杂动态环境下实现“智能定价”提供了一套具备理论纠偏能力的算法流程. 
+
+\end{abstract}
+
+\begin{keyword}
+价格弹性 \sep 因果推断 \sep 偏差分析 \sep 双重机器学习
+\end{keyword}
+
+\maketitle
+
+\input{docs/PriceElasticity_paper.tex}
+\end{document}

@@ -1,0 +1,24 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{n}{feature\PYGZus{}generator\PYGZus{}full} \PYG{o}{=} \PYG{n}{ColumnTransformer}\PYG{p}{(}\PYG{p}{[}
+        \PYG{c+c1}{\PYGZsh{} 1. 商品固定效应: 给每个 StockCode 一个独立截距, 捕捉每个商品特有的基准销量.}
+        \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{StockCode}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{OneHotEncoder}\PYG{p}{(}\PYG{n}{handle\PYGZus{}unknown}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{ignore}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{,} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{StockCode}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+        \PYG{c+c1}{\PYGZsh{} 2. 时间固定效应: 对月份、日期、周几进行独热编码, 捕捉非线性的季节性和周期性规律.}
+        \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Date}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{OneHotEncoder}\PYG{p}{(}\PYG{n}{handle\PYGZus{}unknown}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{ignore}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{,} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{month}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{DoM}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{DoW}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+        \PYG{c+c1}{\PYGZsh{} 3. 商品属性特征: 从描述文本中提取 n\PYGZhy{}gram (1\PYGZhy{}3词组), 捕捉细粒度属性对需求的影响.}
+        \PYG{p}{(}
+            \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Description}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,}
+            \PYG{n}{CountVectorizer}\PYG{p}{(}\PYG{n}{min\PYGZus{}df}\PYG{o}{=}\PYG{l+m+mf}{0.0025}\PYG{p}{,} \PYG{n}{ngram\PYGZus{}range}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)}\PYG{p}{)}\PYG{p}{,}
+            \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Description}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,}
+        \PYG{p}{)}\PYG{p}{,}
+        \PYG{c+c1}{\PYGZsh{} 4. 区域固定效应: 捕捉不同国家的消费习惯差异.}
+        \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Country}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{OneHotEncoder}\PYG{p}{(}\PYG{n}{handle\PYGZus{}unknown}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{ignore}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{,} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Country}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+        \PYG{c+c1}{\PYGZsh{} 5. 连续控制变量: 标准化处理, 防止数值较大的特征在正则化中占据过大权重.}
+        \PYG{p}{(}
+            \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{numeric\PYGZus{}feats}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,}
+            \PYG{n}{StandardScaler}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}
+            \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{stock\PYGZus{}age\PYGZus{}days}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{sku\PYGZus{}avg\PYGZus{}p}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{,}
+        \PYG{p}{)}\PYG{p}{,}
+        \PYG{c+c1}{\PYGZsh{} 6. 处理变量: 保留对数价格, 作为回归的核心自变量, 用于计算弹性系数 theta.}
+        \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{LnP}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{passthrough}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{LnP}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+    \PYG{p}{]}\PYG{p}{)}
+\end{MintedVerbatim}

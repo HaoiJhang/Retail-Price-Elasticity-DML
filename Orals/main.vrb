@@ -1,0 +1,30 @@
+\frametitle{DML: Code}
+
+\begin{minted}{python3}
+# 定义用于建模数量的管道 model_q
+model_q = Pipeline([
+    # 第一阶段: 特征处理
+    # 使用 feature_generator_full 对原始输入数据进行特征转换
+    ('feat_proc', feature_generator_full),
+    # 第二阶段: Poisson 回归模型, 适用于计数型（非负整数）目标变量
+    ('model_q',
+    linear_model.PoissonRegressor(
+        alpha=1e-6,           # L2 正则化强度, 值越小正则化越弱.
+        fit_intercept=False,  # 不拟合截距项（通常在特征已中心化或包含常数列时使用）
+        max_iter=100_000,     # 最大迭代次数, 设置较高以确保收敛
+    )),
+])
+# 定义用于建模价格或其他连续目标的管道 model_p
+model_p = Pipeline([
+    # 第一阶段: 特征处理（与 model_q 共享相同的特征工程流程）
+    ('feat_proc', feature_generator_full),
+    # 第二阶段: 随机森林回归器, 适用于非线性关系和特征交互
+    ('model_p',
+    RandomForestRegressor(
+        n_estimators=50,       # 决策树的数量
+        min_samples_leaf=3,    # 每个叶节点至少包含 3 个样本, 用于控制过拟合
+    ))
+])
+
+\end{minted}
+

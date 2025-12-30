@@ -1,0 +1,17 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{binned\PYGZus{}ols}\PYG{p}{(}\PYG{n}{df}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{n\PYGZus{}bins}\PYG{o}{=}\PYG{l+m+mi}{15}\PYG{p}{)}\PYG{p}{:}
+    \PYG{c+c1}{\PYGZsh{} 1. Binning (Quantile Cut)}
+    \PYG{n}{x\PYGZus{}bin} \PYG{o}{=} \PYG{n}{x} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZus{}bin}\PYG{l+s+s1}{\PYGZsq{}}
+    \PYG{n}{df}\PYG{p}{[}\PYG{n}{x\PYGZus{}bin}\PYG{p}{]} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{qcut}\PYG{p}{(}\PYG{n}{df}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]}\PYG{p}{,} \PYG{n}{n\PYGZus{}bins}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} 2. De\PYGZhy{}noising (Mean per bin)}
+    \PYG{n}{tmp} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{groupby}\PYG{p}{(}\PYG{n}{x\PYGZus{}bin}\PYG{p}{)}\PYG{o}{.}\PYG{n}{agg}\PYG{p}{(}\PYG{p}{\PYGZob{}}
+        \PYG{n}{x}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{mean}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{y}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{mean}\PYG{l+s+s1}{\PYGZsq{}}
+    \PYG{p}{\PYGZcb{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} 3. Regression on Binned Data}
+    \PYG{n}{mdl} \PYG{o}{=} \PYG{n}{sm}\PYG{o}{.}\PYG{n}{OLS}\PYG{p}{(}
+        \PYG{n}{tmp}\PYG{p}{[}\PYG{n}{y}\PYG{p}{]}\PYG{p}{,} \PYG{n}{sm}\PYG{o}{.}\PYG{n}{add\PYGZus{}constant}\PYG{p}{(}\PYG{n}{tmp}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]}\PYG{p}{)}
+    \PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{mdl}\PYG{o}{.}\PYG{n}{fit}\PYG{p}{(}\PYG{p}{)}
+\end{MintedVerbatim}

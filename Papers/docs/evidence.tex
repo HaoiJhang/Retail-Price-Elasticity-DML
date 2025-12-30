@@ -1,0 +1,60 @@
+
+\section{实证结果分析} \label{sec:evidence}
+
+基于前文构建的混合残差双重机器学习模型, 本节对 Kaggle 零售数据集的价格弹性进行估算. 我们通过对比不同计量模型的估计结果, 并结合可视化诊断与误差分析, 验证 Robust DML 框架在处理内生性问题上的有效性.
+
+\subsection{价格弹性估计结果对比}
+
+表 \ref{tab:elasticity_results} 详细汇总了不同估计策略下的价格弹性系数 ($\est{\theta}$) 与拟合优度指标. 
+
+\begin{table}[htbp]
+    \centering
+    \caption{不同模型设定下的价格弹性估计与误差分析}
+    \label{tab:elasticity_results}
+    \begin{tabular}{c c c c}
+        \toprule
+        \textbf{估计策略} & \textbf{弹性系数 ($\est{\theta}$)} & \textbf{Binned RMSE} & \textbf{结果诊断} \\
+        \midrule
+        Raw OLS & -0.607 & 0.308 & 严重低估, 供需联立偏差 \\
+        De-meaned (FE) & -1.803 & 0.119 & 显著增大, 剔除固定效应 \\
+        Naive DML & -0.580 & 0.108 & 衰减偏差, 第一阶段噪音干扰 \\
+        Robust DML & -1.051 & 0.337 & 因果修正, Neyman 正交化 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+随着模型处理阶段的深入, RMSE 总体呈现下降趋势. 值得注意的是, 尽管 Robust DML 的 Binned RMSE 高于 Naive DML, 但这并不意味着模型失效, 其差异源于两者优化目标的本质不同:
+\begin{itemize}
+    \item Naive DML (OLS) 的数学目标就是最小化残差平方和, 在包含噪音的样本中, OLS 倾向于过度拟合这些随机扰动以降低误差，从而导致参数估计产生衰减偏差.
+    \item Robust DML 的目标是因果识别, 即利用原始价格修正分母偏差. 它利用原始价格信息构建 Neyman 正交化分数以修正分母. 这一过程虽然牺牲了对当前样本特定噪音的拟合精度, 导致 RMSE 上升，却换取了参数估计的无偏性与一致性. 
+\end{itemize}
+
+\subsection{需求曲线剖析}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figs/demand_curve_comparison_robust.pdf}
+    \caption{需求曲线重构: 原始数据 (Raw)、去均值 (De-meaned)、朴素 DML (Naive) 与稳健 DML (Robust)}
+    \label{fig:demand_curve_robust}
+\end{figure}
+
+为了直观展示因果推断框架剥离混杂因素的效果, 图 \ref{fig:demand_curve_robust} 绘制了不同估计策略下的需求曲线. 结合表 \ref{tab:elasticity_results} 的实证数据, 我们得出以下结论:
+
+\begin{itemize}
+    \item {Raw OLS 的低估现象 (灰色虚线)}: 
+    原始数据的回归斜率平缓 ($\est{\theta} \approx -0.61$). 这直观地反映了``供需联立性偏差'': 旺季的高需求往往伴随着商家的维持高价策略, 这种正相关力量抵消了真实的价格负效应, 导致模型低估了用户对价格的敏感度.
+    
+    \item {De-meaned 的过度敏感 (蓝色虚线)}: 
+    在剔除商品固定效应后, 斜率显著变陡 ($\est{\theta} \approx -1.80$). 这表明商品本身的异质性 (如高档商品销量低) 是主要的混杂来源. 然而, 简单的去均值无法处理随时间变化的混杂因素 (如全场大促), 可能将促销带来的自然流量误归因为降价效应, 从而一定程度上高估了弹性.
+    
+    \item {Naive DML 的衰减偏差 (红色虚线)}: 
+    尽管引入了双重机器学习, 但直接回归残差得到的弹性系数却回落至 -0.58. 这与第 \ref{sec:simulation} 节模拟实验的结论高度一致: 由于第一阶段模型过度拟合了噪音, 导致价格残差的方差收缩, 引发了严重的衰减偏差, 使得估计值向 0 偏移.
+    
+    \item {Robust DML 的因果修正 (绿色虚线)}: 
+    采用 Neyman 正交化公式修正后, 弹性系数被修正为 -1.05. 
+    该结果介于 Raw OLS 与 De-meaned 之间, 具有最高的理论可信度. 一方面, 它像 De-meaned 一样剔除了商品固定效应; 另一方面, 它通过第一阶段的随机森林控制了时间与文本特征, 修正了 De-meaned 模型因忽略季节性因素而导致的高估偏差. 最终 -1.05 的弹性系数表明, 该市场呈现接近单位弹性的特征.
+\end{itemize}
+
+\subsection{稳健性检验}
+
+为了进一步验证前文估计结果的可靠性, 使用 $2$ 折交叉拟合策略: 利用样本 A 训练辅助模型并预测样本 B 的残差 (反之亦然), 从而彻底消除过拟合带来的自身偏差,

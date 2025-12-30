@@ -1,0 +1,91 @@
+\section{理论框架}
+\label{sec:theory}
+
+为了从理论上厘清不同估计策略的有效性边界, 本节建立了一个包含高维混杂因素的线性需求结构方程模型. 
+
+基于该模型, 本节将首先推导普通最小二乘法及固定效应模型的渐近偏差形式, 揭示``供需联立性''与``遗漏变量''如何扭曲弹性估计. 随后, 我们将重点讨论双重机器学习 框架下的两种估计策略, 从数学上证明朴素 DML在有限样本下的衰减偏差, 并推导基于 Neyman 正交化分数的 Robust DML 估计量如何实现对滋扰参数误差的稳健, 从而获得一致无偏的因果推断结果. 
+
+\subsection{模型设定}
+
+为构建理论分析框架, 假设真实的数据生成过程服从如下线性需求函数:
+\begin{align}
+    y = \theta x + \alpha_i + \beta S_{i,t} + \varepsilon_{i,t} \label{eq:real_demand_f}
+\end{align}
+
+式 \eqref{eq:real_demand_f} 中各变量的经济学含义设定如下:
+\begin{itemize}
+    \item $y$: 需求量 $Q$ 的对数形式;
+    \item  $x$: 价格 $P$ 的对数形式;
+    \item $\theta < 0$: 待估计的真实价格弹性;
+    \item $\alpha_i$: 商品层面的固定效应 (如未被观测到的商品质量). 通常高质量商品价格较高, 故假设 $\cov{x,\alpha} > 0$. 
+    \item $S_{i,t}$: 随时间变化的混杂因素 (如双十一促销、换季清仓等环境因素). 假设此类因素会提升需求 ($\beta > 0$), 且往往伴随着商家的降价行为 ($\cov{x, S} < 0$). 
+    \item $\varepsilon_{i,t}$: 独立同分布的随机误差项.
+\end{itemize}
+
+\subsection{估计量分析}
+
+\subsubsection{普通最小二乘法 (Raw OLS)}
+
+若忽略潜在的混杂因素, 直接使用普通最小二乘法拟合单变量回归 $y = \theta_{\text{OLS}} x$, 其估计量推导如式 \eqref{eq:raw_ols} :
+\begin{align} \label{eq:raw_ols}
+    \est{\theta}_{\text{OLS}} 
+    = \frac{\cov{y, x}}{\dev{x}}
+    = \theta + \underbrace{\frac{\cov{\alpha_i, x}}{\dev{x}}}_{\text{质量偏差 (+) }} + \underbrace{\beta \frac{\cov{S_t, x}}{\dev{x}}}_{\text{季节性偏差 (-) }}
+\end{align}
+
+根据模型设定, 式 \eqref{eq:raw_ols} 中的偏差项符号为:
+\begin{itemize}
+    \item $\frac{\cov{\alpha_i, x}}{\dev{x}} > 0$: 忽略商品质量导致的正向偏差;
+    \item $\beta \frac{\cov{S_t, x}}{\dev{x}} < 0$: 忽略促销因素导致的负向偏差.
+\end{itemize}
+通常情况下, 商品异质性带来的正向偏差占主导地位, 导致 $\est{\theta}_{\text{OLS}}$ 被低估, 向 $0$ 收缩.
+
+\subsubsection{去均值回归 (De-meaned)}
+
+引入固定效应模型, 即通过去均值操作令 $\ddot{x}  = x - \avg{x}_i$. 该操作利用 $\alpha_i$ 不随时间变化的特性 ($\ddot{\alpha} = 0$), 直接剔除了商品固定效应. 变换后的模型见式 \eqref{eq:demeaned_demand_f} :
+\begin{align}\label{eq:demeaned_demand_f}
+    \ddot{y} = \theta x + \beta \ddot{S}_t + \ddot{\varepsilon}
+\end{align}
+
+基于此变换进行 OLS 估计, 去除固定效应的价格弹性估计量见式 \eqref{eq:demeaned_ols} : 
+\begin{align} \label{eq:demeaned_ols}
+    \est{\theta}_{\text{FE}} 
+    = \frac{\cov{\ddot{y}, \ddot{x}}}{\dev{\ddot{x}}}
+    = \theta + \beta \frac{\cov{\ddot{S_t}, \ddot{x}}}{\dev{\ddot{x}}}
+\end{align}
+
+与 Raw OLS 相比, 该方法成功剔除了正向的质量偏差, 仅保留了负向的季节性偏差. 因此, 估计值 $\est{\theta}_{\text{FE}}$ 通常会比 Raw OLS 显著下降 (即弹性绝对值变大), 从而更接近真实值.
+
+\subsubsection{朴素残差回归 (Naive DML)}
+
+朴素 DML 试图通过第一阶段的机器学习模型预测并剔除所有混杂因素, 其估计量形式见式 \eqref{eq:naive_dml} :
+\begin{align}\label{eq:naive_dml}
+    \est{\theta}_{\text{naive}} = \frac{\cov{\widetilde{y}, \widetilde{x}}}{\dev{\widetilde{x}}}
+\end{align}
+
+然而, 在实际应用中, 第一阶段模型往往存在过拟合或因正则化导致的收缩效应, 使得估计出的残差 $\widetilde{x}$ 混入了不可忽略的测量误差 $\nu$. 记观测到的残差形式为 \eqref{eq:measure_error} :
+\begin{align}\label{eq:measure_error}
+    \widetilde{x} = \widetilde{x}^\star + \nu.
+\end{align}
+
+将式 \eqref{eq:measure_error} 代入 \eqref{eq:naive_dml}, 可得:
+\begin{align}
+    \est{\theta}_{\text{naive}} = \theta \frac{\dev{\widetilde{x}^\star}}{\dev{\widetilde{x}^\star} + \dev{\nu}} =  \theta \times \qty(1 - \frac{\dev{\nu}}{\dev{\widetilde{x}^\star} + \dev{\nu}})
+\end{align}
+
+当第一阶段模型预测过于精准时, 真实信号 $\widetilde{x}^\star$ 的方差趋近于 $0$, 导致分母主要由噪音方差 $\dev{\nu}$ 构成. 此时信噪比极低, 导致严重的衰减偏差, 迫使系数 $\est{\theta}_{\text{naive}}$ 向 $0$ 收缩.
+
+\subsubsection{稳健 DML (Robust DML)}
+
+为解决上述问题, 我们采用 Chernozhukov 等人提出的 Neyman 正交化估计量 (Neyman Orthogonal Estimator). 该方法通过修正分母项来构建对滋扰参数误差不敏感的统计量:
+\begin{align}
+    \label{eq:robust_dml}
+    \est{\theta}_{\text{robust}} = \frac{\cov{\widetilde{y}, \widetilde{x}}}{\cov{\widetilde{x}, x}} = \theta \times \frac{\dev{\widetilde{x}^\star}}{\cov{\widetilde{x}^\star + \nu, x}} = \theta \times \frac{\dev{\widetilde{x}^\star}}{\cov{\widetilde{x}^\star, \est{x} + \widetilde{x}^\star}}
+\end{align}
+
+其中 $\est{x}$ 为 $x$ 的预测值. 在理想情况下, 真实残差 $\widetilde{x}^\star$ 与预测值正交 ($\cov{\widetilde{x}^\star, \est{x}} = 0$), 因此式 \eqref{eq:robust_dml} 可化简为:
+\begin{align} \label{eq:robust_approx}
+    \est{\theta}_{\text{robust}} = \theta \times \frac{\dev{\widetilde{x}^\star}}{\dev{\widetilde{x}^\star}} \approx \theta.
+\end{align}
+
+式 \eqref{eq:robust_approx} 利用了残差的正交性质, 即便第一阶段模型的收敛速度较慢 (存在估计误差 $\nu$), 第二阶段也能通过协方差结构抵消其影响. 这一改进不仅修正了 Naive DML 的衰减偏差, 同时保留了 DML 处理高维混杂因素的能力, 从而实现对真实弹性的稳健估计.

@@ -1,0 +1,27 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} 剔除异常产品数据}
+\PYG{n}{df} \PYG{o}{=} \PYG{n}{df}\PYG{p}{[}\PYG{o}{\PYGZti{}}\PYG{n}{df}\PYG{o}{.}\PYG{n}{StockCode}\PYG{o}{.}\PYG{n}{isin}\PYG{p}{(}
+    \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{POST}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{DOT}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{M}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{AMAZONFEE}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{BANK CHARGES}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{C2}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{S}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}
+    \PYG{p}{)}\PYG{p}{]} \PYG{c+c1}{\PYGZsh{} 上述代码代表的是服务、罚款、运营成本或纠错记录}
+
+\PYG{c+c1}{\PYGZsh{} 清洗控制变量}
+\PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{InvoiceDate}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{to\PYGZus{}datetime}\PYG{p}{(}\PYG{n}{df}\PYG{o}{.}\PYG{n}{InvoiceDate}\PYG{p}{)}
+\PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Date}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{to\PYGZus{}datetime}\PYG{p}{(}\PYG{n}{df}\PYG{o}{.}\PYG{n}{InvoiceDate}\PYG{o}{.}\PYG{n}{dt}\PYG{o}{.}\PYG{n}{date}\PYG{p}{)}
+\PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{revenue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{Quantity} \PYG{o}{*} \PYG{n}{df}\PYG{o}{.}\PYG{n}{UnitPrice}
+
+\PYG{c+c1}{\PYGZsh{} 剔除异常偏差值, 超出范围的波动属于数据噪音}
+\PYG{n}{df} \PYG{o}{=} \PYG{p}{(}
+    \PYG{n}{df}\PYG{o}{.}\PYG{n}{assign}\PYG{p}{(} \PYG{c+c1}{\PYGZsh{} 当前订单的价格是\PYGZdq{}标准价格\PYGZdq{}的多少倍}
+    \PYG{n}{dNormalPrice}\PYG{o}{=}\PYG{k}{lambda} \PYG{n}{d}\PYG{p}{:} \PYG{n}{d}\PYG{o}{.}\PYG{n}{UnitPrice} \PYG{o}{/} \PYG{n}{d}\PYG{o}{.}\PYG{n}{groupby}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{StockCode}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{o}{.}\PYG{n}{UnitPrice}\PYG{o}{.}\PYG{n}{transform}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{median}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{p}{)}\PYG{o}{.}\PYG{n}{pipe}\PYG{p}{(}\PYG{k}{lambda} \PYG{n}{d}\PYG{p}{:} \PYG{n}{d}\PYG{p}{[}\PYG{p}{(}\PYG{n}{d}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{dNormalPrice}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{\PYGZgt{}} \PYG{l+m+mf}{1.}\PYG{o}{/}\PYG{l+m+mi}{3}\PYG{p}{)} \PYG{o}{\PYGZam{}}\PYG{p}{(}\PYG{n}{d}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{dNormalPrice}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{\PYGZlt{}} \PYG{l+m+mf}{3.}\PYG{p}{)}\PYG{p}{]} \PYG{c+c1}{\PYGZsh{} 正常的商业调整}
+    \PYG{p}{)}\PYG{o}{.}\PYG{n}{drop}\PYG{p}{(}\PYG{n}{columns}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{dNormalPrice}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{)}
+\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} 聚合处理, 计算加权平均价格}
+\PYG{n}{df} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{groupby}\PYG{p}{(}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Date}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{StockCode}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Country}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{,} \PYG{n}{as\PYGZus{}index}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{)}\PYG{o}{.}\PYG{n}{agg}\PYG{p}{(}\PYG{p}{\PYGZob{}}
+    \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Description}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{first}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Quantity}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{sum}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{revenue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{sum}\PYG{l+s+s1}{\PYGZsq{}}
+\PYG{p}{\PYGZcb{}}\PYG{p}{)}
+\PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Description}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{groupby}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{StockCode}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{Description}\PYG{o}{.}\PYG{n}{transform}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{first}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{UnitPrice}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{revenue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{/} \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Quantity}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}
+\end{MintedVerbatim}

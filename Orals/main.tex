@@ -1,0 +1,46 @@
+\documentclass[compress,handout,aspectratio=149,10pt]{beamer}
+\usepackage{sty-sine/sine}
+\usepackage{minted}
+\usemintedstyle{vs} % 可以选择不同的配色风格，如 friendly, vs, monokai 等
+\setminted{
+    fontsize=\scriptsize,  % 字号
+    frame=single,          % 单线边框
+    linenos=true,          % 显示行号
+    breaklines=true,       % 自动折行
+}
+% 在每个 section 开始前自动插入目录页
+\AtBeginSection[]
+{
+  \begin{frame}{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+
+\usetheme[minimal]{sine}  % 3 options: minimal, sidebarleft, sidebarright
+
+\author[Haoyi]{张浩怡}
+
+\date[Review Periods]{\today}
+
+\begin{document}
+
+
+% \title{A Two-armed Bandit Framework for A/B Testing}
+% \title{从 ``银钱并行" 到 ``货币主权"\\ —— 中国货币史视角下的国际化逻辑与启示}
+\title{价格弹性的因果计算 \\ —— Market Basket Analysis}
+\maketitle
+
+
+\begin{frame}
+    \frametitle{Outline}
+    \tableofcontents
+\end{frame}
+
+\input{docs/PriceElasticity.tex}
+
+% 留白页
+\begin{frame}
+\end{frame}
+
+\end{document}

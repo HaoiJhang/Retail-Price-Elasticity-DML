@@ -1,0 +1,24 @@
+# .gitignore
+
+# 1. 忽略数据集 (太大了，别人应该去 Kaggle 下载)
+data/
+*.csv
+*.xlsx
+*.zip
+
+# 2. 忽略 Python 编译文件和缓存
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# 3. 忽略中间生成的巨大模型文件 (如果有)
+*.pkl
+*.joblib
+*.h5
+
+# 4. 忽略系统文件
+.DS_Store
+
+# 5. 忽略环境配置 (包含敏感信息)
+.env
+venv/

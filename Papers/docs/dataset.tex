@@ -1,0 +1,112 @@
+\section{数据描述与实证设计}\label{sec:dataset}
+
+在前文的理论分析与蒙特卡洛模拟中, 我们验证了 Robust DML 估计量在处理内生性与测量误差方面的优越性. 然而, 相较于受控的模拟环境, 真实世界的零售数据具有更高维的噪声、非平衡的面板结构以及复杂的非线性混杂特征. 为了将理论模型有效地转化为实际定价决策支持, 本节将详细阐述实证研究的数据基础与实施细节. 
+
+
+\subsection{数据来源与原始分布}
+
+本研究采用 Kaggle 公开数据集 ``\href{https://www.kaggle.com/datasets/aslanahmedov/market-basket-analysis}{Association Rules and Market Basket Analysis}'', 该数据集记录了某在线零售商在特定时期内的真实交易流水. 原始数据是为购物篮分析设计的细粒度流水账, 每一行代表单笔订单中的一项商品记录. 数据总量共计 541,909 条, 涵盖了从交易编号、商品代码(StockCode)、描述信息、交易数量(Quantity)、单价 (UnitPrice) 到客户所在地等核心维度. 原始特征及其具体含义见表 \ref{tab:feature_description}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{原始数据集特征说明}
+    \label{tab:feature_description}
+    \begin{tabular}{cl}
+        \toprule
+        \textbf{特征名称} & \multicolumn{1}{c}{\textbf{含义说明}} \\
+        \midrule
+        InvoiceNo   & 发票编号: 每笔交易的唯一 6 位编号 \\
+        StockCode   & 商品编码: 每种独特商品的唯一 5-6 位字母数字代码 \\
+        Description    & 商品描述: 商品的具体名称 \\
+        Quantity          & 交易数量: 每笔交易中该类商品的购买件数 \\
+        InvoiceDate        & 发票日期: 交易发生的日期和具体时间 \\
+        UnitPrice       & 商品单价: 单位商品的销售价格 \\
+        CustomerID   & 客户编号: 每名客户的唯一 5 位识别码 \\
+        Country     & 国家: 客户居住或订单发生的国家/地区 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsection{数据清洗与聚合策略}
+
+为了构建适用于价格弹性估计的计量模型, 本研究需将分析维度从``单次交易''聚合至``商品-日期''维度, 以构建时间序列上的价格与需求对应关系. 此外, 为了确保因果效应估计的准确性, 本研究实施了严格的数据清洗流程, 总体步骤为:
+\begin{enumerate}
+    \item 剔除非商品记录: 过滤了 StockCode 中包含 \texttt{['POST', 'DOT', 'M', ...]} 等非交易性编码的记录. 这些记录通常代表邮费、手续费、银行费用或运营调整, 不属于市场供需驱动的商品销售, 若不剔除会干扰价格弹性的计算. 
+    \item 处理异常值与筛选相对价格: 针对零售数据中常见的数据录入错误及非理性极值, 本研究计算了每个商品在全观测期内的中位数价格作为基准锚点 ($P_{\text{median}}$). 我们定义相对价格比率 $R_p = P_t / P_{\text{median}}$, 并仅保留 $R_p \in [1/3, 3]$ 区间内的样本. 该阈值设定基于经验法则, 旨在保留正常的商业调价行为(如 3 折促销), 同时剔除系统错误或特殊赠品记录.
+    \item 聚合数据: 以``日期 (Date)''、``商品代码 (StockCode)''和``国家 (Country)''为联合主键对数据进行聚合. 
+    \begin{itemize}
+        \item {销量 ($Q$)}: 采用当日总销售数量 ($\sum \text{Quantity}$), 反映市场总需求.
+        \item {价格 ($P$)}: 采用基于销售额加权的平均单价 ($\sum \text{Revenue} / \sum \text{Quantity}$). 相比简单算术平均, 加权价格能更真实地反映当日大多数消费者实际支付的成交价.
+    \end{itemize}
+\end{enumerate}
+
+清洗与聚合后的数据展现出显著的时间异质性. 如图 \ref{fig:daily_trends} 所示, 每日总销量与交易频次呈现高度的协同波动, 且存在明显的峰谷特征. 这表明市场需求受到宏观时间因素(如节假日、季节)的强烈驱动, 验证了在模型中控制时间混杂因素的必要性.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figs/daily_trends_dual_axis.pdf}
+    \caption{售出商品数量, 交易笔数与收益时间序列分布图}
+    \label{fig:daily_trends}
+\end{figure}
+
+\subsection{特征工程与混杂变量构造}
+
+为了解决价格内生性问题, 本研究基于领域知识构建了高维特征空间 $\mathcal{X}$, 旨在从时间、产品生命周期、文本语义及地理四个维度, 捕捉影响供需关系的深层混杂机制.
+
+\subsubsection{非线性时间效应的捕捉}
+市场需求具有显著的时间波动规律. 如果忽略这些因素, 可能会将节日带来的“量价齐升”错误地识别为正向的价格弹性.
+
+本研究提取了月份 ({Month})、月内日期 ({Day of Month}) 以及周几 ({Day of Week}). 其中, 月份捕捉了季节性趋势(如冬季对保暖用品的需求增加)；月内日期捕捉了发薪日效应(月初购买力较强)；周几则捕捉了工作日与周末的消费习惯差异.
+
+通过对这些分类变量进行独热编码, DML 模型的第一阶段能够非线性地拟合出销量的``基准时间趋势'', 从而确保价格残差不再包含由于时间同步性导致的伪相关.
+
+\subsubsection{商品异质性与生命周期控制}
+
+% TODO: 绘制 Dataset 中 Stock Age Days 和 SKU Median Price 的分布
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figs/feature_distributions.pdf}
+    \caption{混杂因素分布：商品生命周期 (左) 与对数化基准价格 (右) 的核密度估计}
+    \label{fig:eda_dist}
+\end{figure}
+
+不同品类的商品具有不同的基准价格和需求分布, 且同一商品在不同生命周期的价格敏感度各异. 我们构造了两个关键连续变量, 并对其分布进行了核密度估计 (如图 \ref{fig:eda_dist} 所示):
+\begin{itemize}
+    \item 商品生命周期 (Stock Age Days): 定义为当前交易日期与该商品首次进入系统日期之差.  如图 \ref{fig:eda_dist} (左) 所示, 数据覆盖了从``新品引入期'' (左侧峰值) 到``成熟期/衰退期'' (右侧拖尾) 的完整周期. 新品通常享有流量红利, 而衰退期商品常伴随清仓甩卖 (低价高销). 若不控制此变量, 模型会将生命周期带来的自然销量波动混淆为价格弹性.
+
+    \item 基准锚点价 (SKU Median Price): 定义为每种商品在历史观测期内的单价中位数. 该指标作为商品“档次”或“品质”的代理变量, 可以捕捉不同价格带商品的固有基准销量差异, 从而隔离了商品异质性产生的截距偏差. 如图 \ref{fig:eda_dist} (右) 所示, 价格分布呈现典型的右偏长尾特征 (Log-Normal 分布). 这表明市场中存在少量高价商品. 为防止数值问题影响模型收敛, 本研究后续对该变量进行了标准化 (StandardScaler) 处理.
+\end{itemize}
+
+
+\subsubsection{基于自然语言处理的细粒度属性挖掘}
+原始数据集中的 Description 字段包含了丰富的非结构化信息, 这些信息往往定义了商品的细分市场. 本研究使用 N-gram 词频向量化: 利用 CountVectorizer 对商品描述进行文本挖掘, 提取一元至三元短语(1-3 grams), 并设定最小文档频率限制(min\_df=0.0025)以剔除长尾低频词. 
+
+该方法能自动识别如 ``SILK'' (材质)、``VINTAGE'' (风格)、``SET OF 6'' (规格) 等关键属性. 例如, 大规格包装 (``SET'') 通常单位价格较低但需求量稳定. 将这些文本特征纳入 DML 的控制变量, 有助于模型在更细粒度的属性组合上平衡比较组, 从而更精准地隔离价格效应.
+
+\subsubsection{地域固定效应}
+
+考虑到不同国家(如英国、法国、德国)的消费水平、物流成本及节假日安排差异, 本研究将 Country 作为分类控制变量. 这有助于消除地理因素产生的系统性误差, 例如英国市场的价格调整策略可能与欧洲大陆市场完全不同. 
+
+\subsubsection{连续变量的标准化处理}
+
+为了提高机器学习模型(如岭回归及随机森林)的收敛速度和正则化效率, 本研究对所有连续型控制变量(如在架时长、中位数价格)进行了标准正态化处理 (StandardScaler). 这一步确保了不同量纲的特征在 DML 模型中具有公平的贡献度, 防止大数值特征(如天数)掩盖小数值特征(如标准化后的价格波动)的信号. 
+
+
+\subsection{实证模型设计}
+
+基于上述构建的高维特征空间 $\mathcal{X}$, 本研究针对零售数据的分布特性及微观交易数据的极高噪声, 设计了如下混合残差与分箱推断策略:
+
+\begin{enumerate}
+    \item {价格模型}: 采用{随机森林回归} 估计 $g(\mathcal{X}) = \mathbb{E}[P|\mathcal{X}]$. 价格制定机制往往是非线性的 (如由季节、库存、竞品共同决定的复杂规则), 随机森林能有效捕捉高维特征间的交互作用, 从而获得高质量的价格残差.
+    
+    \item {销量模型}: 采用{Poisson 回归} 估计 $m(\mathcal{X}) = \mathbb{E}[Q|\mathcal{X}]$. 销量本质上是取值为非负整数的计数数据 (Count Data). 相比传统线性回归, Poisson 回归能更准确地拟合长尾分布, 避免预测出负销量的不合理现象.
+    
+    \item {分箱残差回归}: 在获得正交化残差 $\widetilde{P}$ 和 $\widetilde{Q}$ 后, 本研究摒弃了传统的对所有残差样本进行直接线性回归的做法, 而是采用{分箱最小二乘法} 作为计算价格弹性的核心算法. 具体步骤如下:
+    \begin{itemize}
+        \item {分箱}: 将价格残差 $\widetilde{P}$ 依据分位数划分为 $K$ 个等频区间 (本研究设定 $K=15$).
+        \item {聚合}: 计算每个区间内 $\widetilde{P}$ 和 $\widetilde{Q}$ 的均值点, 构造 $K$ 个代表性样本点. 这一过程本质上是在进行非参数化的局部平均平滑 (Local Avaraging), 能够有效抵消微观层面的随机测量误差.
+        \item {斜率估计}: 对这 $K$ 个聚合均值点进行加权最小二乘回归, 其回归系数即为最终报告的价格弹性 $\est{\theta}$.
+    \end{itemize}
+    该策略不仅能直观地可视化需求曲线的形态, 更能在有限样本下提供比传统 OLS 更稳健的点估计.
+\end{enumerate}
