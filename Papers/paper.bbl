@@ -1,0 +1,36 @@
+\begin{thebibliography}{4}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\href}[2]{#2}
+\providecommand{\path}[1]{#1}
+\providecommand{\DOIprefix}{doi:}
+\providecommand{\ArXivprefix}{arXiv:}
+\providecommand{\URLprefix}{URL: }
+\providecommand{\Pubmedprefix}{pmid:}
+\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{\path{#1}}}
+\providecommand{\Pubmed}[1]{\href{pmid:#1}{\path{#1}}}
+\providecommand{\bibinfo}[2]{#2}
+\ifx\xfnm\relax \def\xfnm[#1]{\unskip,\space#1}\fi
+%Type = Article
+\bibitem[{Chernozhukov et~al.(2017)Chernozhukov, Chetverikov, Demirer, Duflo, Hansen and Newey}]{Chernozhukov2017DML}
+\bibinfo{author}{Chernozhukov, V.}, \bibinfo{author}{Chetverikov, D.}, \bibinfo{author}{Demirer, M.}, \bibinfo{author}{Duflo, E.}, \bibinfo{author}{Hansen, C.}, \bibinfo{author}{Newey, W.}, \bibinfo{year}{2017}.
+\newblock \bibinfo{title}{Double/debiased/neyman machine learning of treatment effects}.
+\newblock \bibinfo{journal}{American Economic Review} \bibinfo{volume}{107}, \bibinfo{pages}{261–65}.
+\newblock \URLprefix \url{https://www.aeaweb.org/articles?id=10.1257/aer.p20171038}, \DOIprefix\doi{10.1257/aer.p20171038}.
+%Type = Misc
+\bibitem[{Hua et~al.(2021)Hua, Yan, Xu and Yang}]{hua2021markdownsecommercefreshretail}
+\bibinfo{author}{Hua, J.}, \bibinfo{author}{Yan, L.}, \bibinfo{author}{Xu, H.}, \bibinfo{author}{Yang, C.}, \bibinfo{year}{2021}.
+\newblock \bibinfo{title}{Markdowns in e-commerce fresh retail: A counterfactual prediction and multi-period optimization approach}.
+\newblock \URLprefix \url{https://arxiv.org/abs/2105.08313}, \href{http://arxiv.org/abs/2105.08313}{{\tt arXiv:2105.08313}}.
+%Type = Book
+\bibitem[{Nicholson and Snyder(2011)}]{nicholson2011intermediate}
+\bibinfo{author}{Nicholson, W.}, \bibinfo{author}{Snyder, C.}, \bibinfo{year}{2011}.
+\newblock \bibinfo{title}{Intermediate Microeconomics and Its Application}.
+\newblock \bibinfo{edition}{11th} ed., \bibinfo{publisher}{Cengage Learning}, \bibinfo{address}{Mason, Ohio}.
+%Type = Misc
+\bibitem[{Schultz et~al.(2024)Schultz, Stephan, Sieber, Yeh, Kunz, Doupe and Januschowski}]{schultz2024causalforecastingpricing}
+\bibinfo{author}{Schultz, D.}, \bibinfo{author}{Stephan, J.}, \bibinfo{author}{Sieber, J.}, \bibinfo{author}{Yeh, T.}, \bibinfo{author}{Kunz, M.}, \bibinfo{author}{Doupe, P.}, \bibinfo{author}{Januschowski, T.}, \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{Causal forecasting for pricing}.
+\newblock \URLprefix \url{https://arxiv.org/abs/2312.15282}, \href{http://arxiv.org/abs/2312.15282}{{\tt arXiv:2312.15282}}.
+
+\end{thebibliography}

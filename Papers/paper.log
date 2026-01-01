@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.8.19)  30 DEC 2025 14:59
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.8.19)  1 JAN 2026 13:45
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1232,47 +1232,47 @@ Package shellesc Info: Restricted shell escape enabled on input line 77.
 ) (./paper.aux)
 \openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/ntxebgmi/m/it on input line 22.
-LaTeX Font Info:    Trying to load font information for OML+ntxebgmi on input line 22.
+LaTeX Font Info:    Checking defaults for OML/ntxebgmi/m/it on input line 21.
+LaTeX Font Info:    Trying to load font information for OML+ntxebgmi on input line 21.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/omlntxebgmi.fd
 File: omlntxebgmi.fd 2024/03/06 Fontinst v1.933 font definitions for OML/ntxebgmi.
 )
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for U/ntxexa/m/n on input line 22.
-LaTeX Font Info:    Trying to load font information for U+ntxexa on input line 22.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for U/ntxexa/m/n on input line 21.
+LaTeX Font Info:    Trying to load font information for U+ntxexa on input line 21.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/untxexa.fd
 File: untxexa.fd 2012/04/16 Fontinst v1.933 font definitions for U/ntxexa.
 )
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 22.
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for LMS/ntxsy/m/n on input line 22.
-LaTeX Font Info:    Trying to load font information for LMS+ntxsy on input line 22.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for LMS/ntxsy/m/n on input line 21.
+LaTeX Font Info:    Trying to load font information for LMS+ntxsy on input line 21.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/lmsntxsy.fd
 File: lmsntxsy.fd 2016/07/02 Fontinst v1.933 font definitions for LMS/ntxsy.
 )
-LaTeX Font Info:    ... okay on input line 22.
-LaTeX Font Info:    Checking defaults for LMX/ntxexx/m/n on input line 22.
-LaTeX Font Info:    Trying to load font information for LMX+ntxexx on input line 22.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for LMX/ntxexx/m/n on input line 21.
+LaTeX Font Info:    Trying to load font information for LMX+ntxexx on input line 21.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/lmxntxexx.fd
 File: lmxntxexx.fd 2016/07/03 Fontinst v1.933 font definitions for LMX/ntxexx.
 )
-LaTeX Font Info:    ... okay on input line 22.
-Package hyperref Info: Link coloring ON on input line 22.
+LaTeX Font Info:    ... okay on input line 21.
+Package hyperref Info: Link coloring ON on input line 21.
  (./paper.out) (./paper.out)
 \@outlinefile=\write6
 \openout6 = `paper.out'.
@@ -1312,72 +1312,72 @@ Package hyperref Info: Link coloring ON on input line 22.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Info: Command `\dddot' is already robust on input line 22.
-LaTeX Info: Command `\ddddot' is already robust on input line 22.
+LaTeX Info: Command `\dddot' is already robust on input line 21.
+LaTeX Info: Command `\ddddot' is already robust on input line 21.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
 LaTeX Font Info:    Font shape `OML/ntxebgmi/m/it' will be
-(Font)              scaled to size 10.0pt on input line 39.
+(Font)              scaled to size 10.0pt on input line 38.
 LaTeX Font Info:    Font shape `OML/ntxebgmi/m/it' will be
-(Font)              scaled to size 7.3pt on input line 39.
+(Font)              scaled to size 7.3pt on input line 38.
 LaTeX Font Info:    Font shape `OML/ntxebgmi/m/it' will be
-(Font)              scaled to size 5.5pt on input line 39.
+(Font)              scaled to size 5.5pt on input line 38.
 LaTeX Font Info:    Font shape `LMS/ntxsy/m/n' will be
-(Font)              scaled to size 10.0pt on input line 39.
+(Font)              scaled to size 10.0pt on input line 38.
 LaTeX Font Info:    Font shape `LMS/ntxsy/m/n' will be
-(Font)              scaled to size 7.3pt on input line 39.
+(Font)              scaled to size 7.3pt on input line 38.
 LaTeX Font Info:    Font shape `LMS/ntxsy/m/n' will be
-(Font)              scaled to size 5.5pt on input line 39.
+(Font)              scaled to size 5.5pt on input line 38.
 LaTeX Font Info:    Font shape `LMX/ntxexx/m/n' will be
-(Font)              scaled to size 10.0pt on input line 39.
+(Font)              scaled to size 10.0pt on input line 38.
 LaTeX Font Info:    Font shape `LMX/ntxexx/m/n' will be
-(Font)              scaled to size 7.3pt on input line 39.
+(Font)              scaled to size 7.3pt on input line 38.
 LaTeX Font Info:    Font shape `LMX/ntxexx/m/n' will be
-(Font)              scaled to size 5.5pt on input line 39.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 39.
+(Font)              scaled to size 5.5pt on input line 38.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 38.
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 39.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 38.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Trying to load font information for U+ntxmia on input line 39.
+LaTeX Font Info:    Trying to load font information for U+ntxmia on input line 38.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/untxmia.fd
 File: untxmia.fd 2024/04/09 Fontinst v1.933 font definitions for U/ntxmia.
 )
 LaTeX Font Info:    Font shape `U/ntxmia/m/it' will be
-(Font)              scaled to size 10.0pt on input line 39.
+(Font)              scaled to size 10.0pt on input line 38.
 LaTeX Font Info:    Font shape `U/ntxmia/m/it' will be
-(Font)              scaled to size 7.3pt on input line 39.
+(Font)              scaled to size 7.3pt on input line 38.
 LaTeX Font Info:    Font shape `U/ntxmia/m/it' will be
-(Font)              scaled to size 5.5pt on input line 39.
-LaTeX Font Info:    Trying to load font information for U+ntxsym on input line 39.
+(Font)              scaled to size 5.5pt on input line 38.
+LaTeX Font Info:    Trying to load font information for U+ntxsym on input line 38.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/untxsym.fd
 File: untxsym.fd 2023/08/16 Fontinst v1.933 font definitions for U/ntxsym.
 )
 LaTeX Font Info:    Font shape `U/ntxsym/m/n' will be
-(Font)              scaled to size 10.0pt on input line 39.
+(Font)              scaled to size 10.0pt on input line 38.
 LaTeX Font Info:    Font shape `U/ntxsym/m/n' will be
-(Font)              scaled to size 7.3pt on input line 39.
+(Font)              scaled to size 7.3pt on input line 38.
 LaTeX Font Info:    Font shape `U/ntxsym/m/n' will be
-(Font)              scaled to size 5.5pt on input line 39.
-LaTeX Font Info:    Trying to load font information for U+ntxsyc on input line 39.
+(Font)              scaled to size 5.5pt on input line 38.
+LaTeX Font Info:    Trying to load font information for U+ntxsyc on input line 38.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/newtx/untxsyc.fd
 File: untxsyc.fd 2012/04/12 Fontinst v1.933 font definitions for U/ntxsyc.
 )
 LaTeX Font Info:    Font shape `U/ntxsyc/m/n' will be
-(Font)              scaled to size 10.0pt on input line 39.
+(Font)              scaled to size 10.0pt on input line 38.
 LaTeX Font Info:    Font shape `U/ntxsyc/m/n' will be
-(Font)              scaled to size 7.3pt on input line 39.
+(Font)              scaled to size 7.3pt on input line 38.
 LaTeX Font Info:    Font shape `U/ntxsyc/m/n' will be
-(Font)              scaled to size 5.5pt on input line 39.
+(Font)              scaled to size 5.5pt on input line 38.
 LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
-(Font)              scaled to size 10.0pt on input line 39.
+(Font)              scaled to size 10.0pt on input line 38.
 LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
-(Font)              scaled to size 7.3pt on input line 39.
+(Font)              scaled to size 7.3pt on input line 38.
 LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
-(Font)              scaled to size 5.5pt on input line 39.
+(Font)              scaled to size 5.5pt on input line 38.
  (./docs/PriceElasticity_paper.tex (./docs/intro.tex
 
 [1
@@ -1518,24 +1518,28 @@ LaTeX Font Info:    Font shape `U/ntxexa/b/n' will be
 (Font)              scaled to size 5.5pt on input line 27.
 )
 
-[14] (./docs/codes.tex
-\pydata@fh@_7E3F660480AB1640DE8024C200B5A4D3.data.minted=\write7
-\openout7 = `_7E3F660480AB1640DE8024C200B5A4D3.data.minted'.
-
-runsystem(latexminted config  --timestamp 20251230145921 7E3F660480AB1640DE8024C200B5A4D3)...executed safely (allowed).
-
- (./_7E3F660480AB1640DE8024C200B5A4D3.config.minted)
-runsystem(latexminted cleanconfig  --timestamp 20251230145921 7E3F660480AB1640DE8024C200B5A4D3)...executed safely (allowed).
-
- (./_minted/vs.style.minted) (./_minted/2185338977CC0E4F0B8147975C88EB04.highlight.minted
+[14] (./paper.bbl)
 
 [15
 
+] (./docs/codes.tex
+\pydata@fh@_7E3F660480AB1640DE8024C200B5A4D3.data.minted=\write7
+\openout7 = `_7E3F660480AB1640DE8024C200B5A4D3.data.minted'.
+
+runsystem(latexminted config  --timestamp 20260101134552 7E3F660480AB1640DE8024C200B5A4D3)...executed safely (allowed).
+
+ (./_7E3F660480AB1640DE8024C200B5A4D3.config.minted)
+runsystem(latexminted cleanconfig  --timestamp 20260101134552 7E3F660480AB1640DE8024C200B5A4D3)...executed safely (allowed).
+
+ (./_minted/vs.style.minted) (./_minted/DF256CABA1CB63C1DD0FA0EDA6F61C01.highlight.minted
+
+[16
+
 ]
 
-[16])))
+[17])))
 
-[17] 
+[18] 
 enddocument/afterlastpage (AED): lastpage setting LastPage.
 (./paper.aux)
  ***********
@@ -1546,12 +1550,12 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 4F84DC85BCAE3526FBEA341BE8589194;3925.
  ) 
 Here is how much of TeX's memory you used:
- 37972 strings out of 473832
- 799814 string characters out of 5729481
- 1312975 words of memory out of 5000000
- 60269 multiletter control sequences out of 15000+600000
- 591966 words of font info for 162 fonts, out of 8000000 for 9000
+ 38017 strings out of 473832
+ 801236 string characters out of 5729481
+ 1311362 words of memory out of 5000000
+ 60312 multiletter control sequences out of 15000+600000
+ 591958 words of font info for 161 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 108i,16n,128p,713b,840s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 108i,16n,128p,713b,854s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on paper.pdf (17 pages).
+Output written on paper.pdf (18 pages).

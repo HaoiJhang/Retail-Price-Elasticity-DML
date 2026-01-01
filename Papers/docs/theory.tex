@@ -77,7 +77,7 @@
 
 \subsubsection{稳健 DML (Robust DML)}
 
-为解决上述问题, 我们采用 Chernozhukov 等人提出的 Neyman 正交化估计量 (Neyman Orthogonal Estimator). 该方法通过修正分母项来构建对滋扰参数误差不敏感的统计量:
+为解决上述问题, 我们采用 Chernozhukov 等人提出的 Neyman 正交化估计量 (Neyman Orthogonal Estimator)\citep{Chernozhukov2017DML}. 该方法通过修正分母项来构建对滋扰参数误差不敏感的统计量:
 \begin{align}
     \label{eq:robust_dml}
     \est{\theta}_{\text{robust}} = \frac{\cov{\widetilde{y}, \widetilde{x}}}{\cov{\widetilde{x}, x}} = \theta \times \frac{\dev{\widetilde{x}^\star}}{\cov{\widetilde{x}^\star + \nu, x}} = \theta \times \frac{\dev{\widetilde{x}^\star}}{\cov{\widetilde{x}^\star, \est{x} + \widetilde{x}^\star}}

@@ -1,14 +1,13 @@
-\documentclass[10pt,a4paper]{elsarticle}
+\documentclass[10pt,a4paper,preprint,authoryear]{elsarticle}
 \usepackage{sty-sine/sine}
 \usepackage{minted}
 \usepackage{xcolor} % 用于配置颜色（可选）
 \usemintedstyle{vs} 
 \setminted{
-    fontsize=\scriptsize,  % 字号
-    frame=lines,          % 单线边框
+    fontsize=\footnotesize,  % 字号
+    frame=single,          % 单线边框
     linenos=true,          % 显示行号
     breaklines=true,       % 自动折行
-    autogobble             % 自动去除多余缩进
 }
 
 
@@ -38,4 +37,6 @@
 \maketitle
 
 \input{docs/PriceElasticity_paper.tex}
+
+
 \end{document}

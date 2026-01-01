@@ -21,12 +21,12 @@
 
 本研究目前的实证结果主要反映了市场的平均价格弹性 (Average Treatment Effect, ATE). 然而, 正如稳健性检验所提到的, 在实际零售场景中, 不同层级品类 的商品往往具有显著的异质性. 例如, 奢侈品、耐用品与日用快消品的消费者决策机制截然不同, 使用单一的全局弹性系数可能掩盖了细分市场的结构性机会. 
 
-为了捕捉这种结构性差异, 未来的研究可参考双对数结构嵌套均值模型, 将弹性系数参数化为品类特征的函数. 假设价格弹性 $\theta$ 并非由常数决定, 而是由品类指示向量 $\vb{L}_i$ (One-hot Encoding) 动态调节:
+为了捕捉这种结构性差异, 未来的研究可参考双对数结构嵌套均值模型, 将弹性系数参数化为品类特征的函数\citep{hua2021markdownsecommercefreshretail}. 假设价格弹性 $\theta$ 并非由常数决定, 而是由品类指示向量 $\vb{L}_i$ 动态调节:
 \begin{align} \label{eq:hte_model}
     \theta_i = \theta_{\text{base}} + \vb*{\delta}^\top \vb{L}_i
 \end{align}
 
-其中, $\theta_{\text{base}}$ 为基准弹性, $\vb*{\delta}$ 为不同品类相对于基准的弹性偏移量 (Effect Modifiers). 在 DML 的第二阶段推断中, 我们可以将正交化后的残差回归方程扩展为包含交互项的形式:
+式 \eqref{eq:hte_model} 中, $\theta_{\text{base}}$ 为基准弹性, $\vb*{\delta}$ 为不同品类相对于基准的弹性偏移量 (Effect Modifiers). 在 DML 的第二阶段推断中, 我们可以将正交化后的残差回归方程扩展为包含交互项的形式:
 \begin{align}
     \widetilde{y}_i = (\theta_{\text{base}} + \vb*{\delta}^\top \vb{L}_i) \cdot \widetilde{x}_i + \varepsilon_i = \theta_{\text{base}} \widetilde{x}_i + \vb*{\delta}^\top (\vb{L}_i \cdot \widetilde{x}_i) + \varepsilon_i
 \end{align}
